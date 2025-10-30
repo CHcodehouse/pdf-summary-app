@@ -1,0 +1,22 @@
+.hidden {
+  display: none !important;
+}
+
+#upload-area {
+  transition: all 0.3s ease;
+}
+
+#upload-area:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}

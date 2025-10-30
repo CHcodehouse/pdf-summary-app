@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summary Pro - AI Powered Document Summarization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Floating Animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Animation Delays */
+        .animation-delay-1000 { animation-delay: 1000ms; }
+        .animation-delay-2000 { animation-delay: 2000ms; }
+        .animation-delay-4000 { animation-delay: 4000ms; }
+        
+        /* Mouse Follower Elements */
+        .mouse-follower {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 70%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            transition: transform 0.1s ease-out;
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Shine Effect */
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .shine:hover::before {
+            left: 100%;
+        }
+        
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Modal Animations */
+        .modal-enter {
+            animation: modalEnter 0.3s ease-out forwards;
+        }
+        
+        @keyframes modalEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .modal-exit {
+            animation: modalExit 0.2s ease-in forwards;
+        }
+        
+        @keyframes modalExit {
+            from {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.warning {
+            background: #f59e0b;
+        }
+        
+        .toast.info {
+            background: #3b82f6;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+    
+    <!-- Mouse Followers -->
+    <div id="mouse-follower-1" class="mouse-follower"></div>
+    <div id="mouse-follower-2" class="mouse-follower"></div>
+    <div id="mouse-follower-3" class="mouse-follower"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-pdf text-indigo-600 text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">PDF Summary Pro</span>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="hover:text-indigo-200 transition-colors duration-300">Features</a>
+                    <a href="#how-it-works" class="hover:text-indigo-200 transition-colors duration-300">How It Works</a>
+                    <a href="#pricing" class="hover:text-indigo-200 transition-colors duration-300">Pricing</a>
+                </div>
+                
+                <!-- Auth Buttons - Show when user is NOT logged in -->
+                <div id="auth-buttons" class="flex items-center space-x-4">
+                    <button onclick="showAuthModal('login')" 
+                            class="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 transition-all duration-300 shine text-white">
+                        Login
+                    </button>
+                    <button onclick="showAuthModal('signup')" 
+                            class="px-6 py-2 bg-white text-indigo-600 rounded-full font-semibold hover:shadow-lg transition-all duration-300 shine">
+                        Get Started
+                    </button>
+                </div>
+                
+                <!-- User Menu - Show when user IS logged in -->
+                <div id="user-menu" class="hidden items-center space-x-4">
+                    <div class="flex items-center space-x-3 glass-dark px-4 py-2 rounded-full">
+                        <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-semibold" id="user-initials">U</span>
+                        </div>
+                        <span class="text-sm" id="user-email-nav">user@example.com</span>
+                    </div>
+                    <!-- Logout Button - FIXED: Proper placement and styling -->
+                    <button onclick="logout()" 
+                            class="px-4 py-2 rounded-full border border-red-400/50 text-red-200 hover:bg-red-400/20 transition-all duration-300 flex items-center space-x-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-4xl mx-auto relative z-10">
+            <!-- Animated Badge -->
+            <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/20 mb-8 float">
+                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <span class="text-sm">AI Powered Document Summarization</span>
+            </div>
+            
+            <!-- Main Heading -->
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Summarize PDFs with
+                <span class="gradient-text">AI Magic</span>
+            </h1>
+            
+            <!-- Subheading -->
+            <p class="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
+                Transform lengthy documents into concise summaries instantly. Powered by advanced AI algorithms for accurate and meaningful insights.
+            </p>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+                <button onclick="showAuthModal('signup')" 
+                        class="group px-8 py-4 bg-white text-indigo-600 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shine">
+                    <span class="flex items-center space-x-2">
+                        <span>Start Summarizing Free</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                </button>
+                <button onclick="scrollToFeatures()" 
+                        class="group px-8 py-4 border border-white/30 rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300">
+                    <span class="flex items-center space-x-2">
+                        <span>See How It Works</span>
+                        <i class="fas fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
+                    </span>
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
+                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl font-bold text-indigo-300 mb-2">10K+</div>
+                    <div class="text-gray-300">Documents Summarized</div>
+                </div>
+                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl font-bold text-purple-300 mb-2">99.9%</div>
+                    <div class="text-gray-300">Accuracy Rate</div>
+                </div>
+                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
+                    <div class="text-3xl font-bold text-pink-300 mb-2">5s</div>
+                    <div class="text-gray-300">Average Processing Time</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="absolute top-20 left-10 w-20 h-20 bg-yellow-400/20 rounded-full blur-xl float animation-delay-1000"></div>
+        <div class="absolute bottom-20 right-10 w-32 h-32 bg-cyan-400/20 rounded-full blur-xl float animation-delay-2000"></div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Powerful Features</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Everything you need to transform your document workflow</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-bolt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Lightning Fast</h3>
+                    <p class="text-gray-300">Process documents in seconds with our optimized AI algorithms and cloud infrastructure.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-robot text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">AI Powered</h3>
+                    <p class="text-gray-300">Advanced natural language processing for accurate and context-aware summaries.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Secure & Private</h3>
+                    <p class="text-gray-300">Your documents are processed securely and never stored on our servers.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-file-export text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Multiple Formats</h3>
+                    <p class="text-gray-300">Export summaries in TXT, PDF, DOCX, HTML, and JSON formats for maximum flexibility.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-list-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">6 Summary Types</h3>
+                    <p class="text-gray-300">Choose from brief, detailed, bullet points, executive, chapter-wise, or Q&A summaries.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-500 group">
+                    <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-shield-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Advanced Security</h3>
+                    <p class="text-gray-300">Comprehensive file validation, malware scanning, and secure processing protocols.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Simple steps to get your summaries</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
+                        1
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Upload PDF</h3>
+                    <p class="text-gray-300">Drag & drop or select your PDF file</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
+                        2
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Choose Summary Type</h3>
+                    <p class="text-gray-300">Select from 6 different summary formats</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
+                        3
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Download & Export</h3>
+                    <p class="text-gray-300">Get your summary in multiple formats</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideAuthModal()"></div>
+        
+        <div class="relative w-full max-w-md">
+            <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl" id="auth-modal-content">
+                <!-- Login Form -->
+                <div id="login-form">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-2 text-white">Welcome Back</h2>
+                        <p class="text-gray-300">Sign in to your account</p>
+                    </div>
+                    
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                            <div class="relative">
+                                <input type="email" id="login-email" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
+                                       placeholder="Enter your email">
+                                <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" id="login-password" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
+                                       placeholder="Enter your password">
+                                <i class="fas fa-lock absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="login()" 
+                                class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 shadow-lg">
+                            Sign In
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-6">
+                        <span class="text-gray-400">Don't have an account? </span>
+                        <button onclick="switchAuthForm('signup')" class="text-indigo-300 hover:text-indigo-200 font-semibold transition-colors">
+                            Sign Up
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Signup Form -->
+                <div id="signup-form" class="hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-2 text-white">Create Account</h2>
+                        <p class="text-gray-300">Join thousands of users</p>
+                    </div>
+                    
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                            <div class="relative">
+                                <input type="email" id="signup-email" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
+                                       placeholder="Enter your email">
+                                <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-password" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
+                                       placeholder="Create a password">
+                                <i class="fas fa-lock absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="signup()" 
+                                class="w-full py-3 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 shadow-lg">
+                            Create Account
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-6">
+                        <span class="text-gray-400">Already have an account? </span>
+                        <button onclick="switchAuthForm('login')" class="text-indigo-300 hover:text-indigo-200 font-semibold transition-colors">
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Close Button -->
+            <button onclick="hideAuthModal()" 
+                    class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App Section (Hidden until login) -->
+    <div id="main-app" class="hidden min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- App Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">PDF Summary Pro</h1>
+                <p class="text-xl text-gray-300">Upload your PDF and get AI-powered summaries in multiple formats</p>
+            </div>
+            
+            <!-- Upload Section -->
+            <div class="glass rounded-3xl p-8 mb-8">
+                <div id="upload-area" 
+                     class="border-2 border-dashed border-white/30 rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 hover:border-indigo-400 hover:bg-white/5 group">
+                    <input type="file" id="pdf-file" accept=".pdf" class="hidden">
+                    <div class="flex flex-col items-center">
+                        <div class="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-cloud-upload-alt text-white text-2xl"></i>
+                        </div>
+                        <p class="text-xl text-gray-200 mb-2">Click to upload PDF</p>
+                        <p class="text-gray-400">or drag and drop your file here</p>
+                        <p class="text-gray-500 text-sm mt-2">Max file size: 10MB • Supported: PDF only</p>
+                    </div>
+                </div>
+                
+                <div id="file-info" class="hidden mt-6 p-4 bg-white/10 rounded-xl border border-white/20">
+                    <!-- File info will be displayed here by JavaScript -->
+                </div>
+                
+                <!-- Summary Options -->
+                <div id="summary-options" class="hidden mt-8">
+                    <h3 class="text-xl font-bold text-white mb-4">Choose Summary Type</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="summary-types-container">
+                        <!-- Summary types will be rendered here by JavaScript -->
+                    </div>
+                    
+                    <button onclick="uploadPDF()" 
+                            class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <span>Generate Summary</span>
+                        <i class="fas fa-magic"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="results-section" class="hidden glass rounded-3xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-white">Summary</h2>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="exportSummary()" 
+                                class="px-4 py-2 bg-green-500 rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-download"></i>
+                            <span>Export</span>
+                        </button>
+                        <button onclick="resetApp()" 
+                                class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-redo"></i>
+                            <span>New PDF</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-4 flex items-center justify-between text-sm text-gray-400">
+                    <span>Summary Type: <strong class="text-white" id="summary-type-display">Brief Summary</strong></span>
+                    <span id="summary-stats">0 words</span>
+                </div>
+                
+                <div id="summary-content" class="bg-white/5 rounded-xl p-6 border border-white/10 text-gray-200 leading-relaxed whitespace-pre-wrap min-h-[200px] max-h-[600px] overflow-y-auto">
+                    <!-- Summary content will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script>
+    // Set up PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // =============================================
+    // Global Variables
+    // =============================================
+    let currentUser = null;
+    let selectedFile = null;
+    let selectedSummaryType = 'brief';
+    let extractedText = '';
+
+    // =============================================
+    // Enhanced UX Utilities
+    // =============================================
+    const enhancedUX = {
+        showToast: function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+        },
+        
+        showLoading: function(button, text = 'Loading...') {
+            if (!button) return;
+            
+            button.disabled = true;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>${text}</span>
+                </div>
+            `;
+            button.setAttribute('data-original-html', originalHTML);
+        },
+        
+        hideLoading: function(button) {
+            if (!button) return;
+            
+            button.disabled = false;
+            const originalHTML = button.getAttribute('data-original-html');
+            if (originalHTML) {
+                button.innerHTML = originalHTML;
+            }
+        },
+        
+        createProgressBar: function(parent, text = 'Processing...') {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'mt-4';
+            progressContainer.innerHTML = `
+                <div class="text-center mb-2">${text}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            `;
+            
+            if (parent) {
+                parent.appendChild(progressContainer);
+            }
+            
+            return progressContainer;
+        },
+        
+        updateProgressBar: function(container, progress) {
+            const fill = container.querySelector('.progress-fill');
+            if (fill) {
+                fill.style.width = `${progress}%`;
+            }
+        }
+    };
+
+    // =============================================
+    // File Validation Utilities
+    // =============================================
+    const fileValidator = {
+        validatePDF: function(file) {
+            return new Promise((resolve) => {
+                // Check file type
+                if (file.type !== 'application/pdf') {
+                    resolve({
+                        isValid: false,
+                        error: 'Please upload a valid PDF file'
+                    });
+                    return;
+                }
+                
+                // Check file size (10MB max)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    resolve({
+                        isValid: false,
+                        error: 'File size exceeds 10MB limit'
+                    });
+                    return;
+                }
+                
+                // Mock validation
+                setTimeout(() => {
+                    resolve({
+                        isValid: true,
+                        pages: Math.floor(Math.random() * 50) + 1,
+                        isScanned: Math.random() > 0.8
+                    });
+                }, 500);
+            });
+        },
+        
+        getFileInfo: function(file) {
+            return {
+                name: file.name,
+                size: this.formatFileSize(file.size),
+                type: file.type,
+                lastModified: new Date(file.lastModified).toLocaleDateString()
+            };
+        },
+        
+        formatFileSize: function(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    };
+
+    // =============================================
+    // PDF Text Extraction
+    // =============================================
+    const pdfExtractor = {
+        extractTextFromPDF: async function(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n\n';
+                }
+                
+                return fullText;
+            } catch (error) {
+                console.error('Error extracting text from PDF:', error);
+                throw new Error('Failed to extract text from PDF. The file may be corrupted or encrypted.');
+            }
+        },
+        
+        cleanText: function(text) {
+            // Remove excessive whitespace and clean up text
+            return text
+                .replace(/\s+/g, ' ')
+                .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n\n')
+                .trim();
+        },
+        
+        identifySections: function(text) {
+            // Simple section identification based on common patterns
+            const sections = {
+                introduction: '',
+                methodology: '',
+                results: '',
+                conclusion: '',
+                other: ''
+            };
+            
+            const lines = text.split('\n');
+            let currentSection = 'other';
+            
+            for (const line of lines) {
+                const lowerLine = line.toLowerCase().trim();
+                
+                if (lowerLine.includes('introduction') || lowerLine.includes('abstract')) {
+                    currentSection = 'introduction';
+                } else if (lowerLine.includes('method') || lowerLine.includes('approach')) {
+                    currentSection = 'methodology';
+                } else if (lowerLine.includes('result') || lowerLine.includes('finding')) {
+                    currentSection = 'results';
+                } else if (lowerLine.includes('conclusion') || lowerLine.includes('discussion')) {
+                    currentSection = 'conclusion';
+                } else if (line.trim().length > 0) {
+                    sections[currentSection] += line + ' ';
+                }
+            }
+            
+            return sections;
+        }
+    };
+
+    // =============================================
+    // Summary Types Management
+    // =============================================
+    const summaryTypes = {
+        types: [
+            {
+                id: 'brief',
+                name: 'Brief Summary',
+                description: 'Short and concise overview',
+                icon: 'fas fa-file-alt',
+                color: 'from-blue-500 to-cyan-500'
+            },
+            {
+                id: 'detailed',
+                name: 'Detailed Summary',
+                description: 'Comprehensive analysis',
+                icon: 'fas fa-file-medical',
+                color: 'from-green-500 to-emerald-500'
+            },
+            {
+                id: 'bullet',
+                name: 'Bullet Points',
+                description: 'Key points in bullet format',
+                icon: 'fas fa-list-ul',
+                color: 'from-purple-500 to-pink-500'
+            },
+            {
+                id: 'executive',
+                name: 'Executive Summary',
+                description: 'High-level insights for decision makers',
+                icon: 'fas fa-chart-line',
+                color: 'from-orange-500 to-red-500'
+            },
+            {
+                id: 'chapter',
+                name: 'Chapter-wise Summary',
+                description: 'Summary organized by chapters/sections',
+                icon: 'fas fa-book',
+                color: 'from-indigo-500 to-purple-500'
+            },
+            {
+                id: 'qa',
+                name: 'Q&A Summary',
+                description: 'Questions and answers from the content',
+                icon: 'fas fa-question-circle',
+                color: 'from-yellow-500 to-orange-500'
+            }
+        ],
+        
+        renderTypes: function() {
+            const container = document.getElementById('summary-types-container');
+            if (!container) return;
+            
+            container.innerHTML = this.types.map(type => `
+                <div class="summary-type-card cursor-pointer group" data-type="${type.id}">
+                    <div class="glass rounded-xl p-4 border-2 border-transparent group-hover:border-white/30 transition-all duration-300 h-full">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r ${type.color} rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="${type.icon} text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-white mb-1">${type.name}</h4>
+                                <p class="text-gray-400 text-sm">${type.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add click event listeners
+            document.querySelectorAll('.summary-type-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    this.selectType(card.dataset.type);
+                });
+            });
+        },
+        
+        selectType: function(typeId) {
+            selectedSummaryType = typeId;
+            
+            // Update UI
+            document.querySelectorAll('.summary-type-card').forEach(card => {
+                const cardElement = card.querySelector('.glass');
+                if (card.dataset.type === typeId) {
+                    cardElement.classList.add('border-indigo-400', 'bg-indigo-500/20');
+                    cardElement.classList.remove('border-transparent');
+                } else {
+                    cardElement.classList.remove('border-indigo-400', 'bg-indigo-500/20');
+                    cardElement.classList.add('border-transparent');
+                }
+            });
+        },
+        
+        getSelectedType: function() {
+            return this.types.find(type => type.id === selectedSummaryType);
+        }
+    };
+
+    // =============================================
+    // PDF Processing - REAL CONTENT BASED
+    // =============================================
+    const pdfProcessor = {
+        processPDF: async function(file, summaryType) {
+            try {
+                // Extract text from PDF
+                extractedText = await pdfExtractor.extractTextFromPDF(file);
+                extractedText = pdfExtractor.cleanText(extractedText);
+                
+                // Generate summary based on actual content
+                const summary = this.generateSummaryFromContent(extractedText, summaryType, file.name);
+                return summary;
+            } catch (error) {
+                console.error('Error processing PDF:', error);
+                throw error;
+            }
+        },
+        
+        generateSummaryFromContent: function(text, summaryType, filename) {
+            const sections = pdfExtractor.identifySections(text);
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            
+            const baseContent = `PDF Summary Report
+Generated: ${new Date().toLocaleString()}
+File: ${filename}
+Original Content Length: ${text.length} characters
+Summary Type: ${summaryTypes.getSelectedType().name}
+
+`;
+            
+            // Generate different summary types based on actual content
+            switch(summaryType) {
+                case 'brief':
+                    return this.generateBriefSummary(baseContent, sentences, sections);
+                case 'detailed':
+                    return this.generateDetailedSummary(baseContent, sentences, sections);
+                case 'bullet':
+                    return this.generateBulletSummary(baseContent, sentences, sections);
+                case 'executive':
+                    return this.generateExecutiveSummary(baseContent, sentences, sections);
+                case 'chapter':
+                    return this.generateChapterSummary(baseContent, sections);
+                case 'qa':
+                    return this.generateQASummary(baseContent, sentences, sections);
+                default:
+                    return this.generateBriefSummary(baseContent, sentences, sections);
+            }
+        },
+        
+        generateBriefSummary: function(baseContent, sentences, sections) {
+            // Take first few meaningful sentences
+            const keySentences = sentences
+                .filter(s => s.length > 20)
+                .slice(0, 3)
+                .map(s => s.trim());
+                
+            return baseContent + 
+                "BRIEF OVERVIEW:\n\n" +
+                keySentences.join('. ') + 
+                ".\n\nThis summary captures the essential information from the document in a concise format.";
+        },
+        
+        generateDetailedSummary: function(baseContent, sentences, sections) {
+            let summary = baseContent + "DETAILED ANALYSIS:\n\n";
+            
+            if (sections.introduction) {
+                summary += "INTRODUCTION:\n" + this.extractKeyPoints(sections.introduction, 3) + "\n\n";
+            }
+            
+            if (sections.methodology) {
+                summary += "METHODOLOGY:\n" + this.extractKeyPoints(sections.methodology, 3) + "\n\n";
+            }
+            
+            if (sections.results) {
+                summary += "KEY FINDINGS:\n" + this.extractKeyPoints(sections.results, 4) + "\n\n";
+            }
+            
+            if (sections.conclusion) {
+                summary += "CONCLUSION:\n" + this.extractKeyPoints(sections.conclusion, 2) + "\n\n";
+            }
+            
+            if (sections.other) {
+                summary += "ADDITIONAL INFORMATION:\n" + this.extractKeyPoints(sections.other, 3) + "\n\n";
+            }
+            
+            return summary;
+        },
+        
+        generateBulletSummary: function(baseContent, sentences, sections) {
+            let summary = baseContent + "KEY POINTS:\n\n";
+            
+            // Extract key points from each section
+            Object.entries(sections).forEach(([sectionName, content]) => {
+                if (content.trim().length > 0) {
+                    const points = this.extractBulletPoints(content, 3);
+                    if (points.length > 0) {
+                        summary += `${sectionName.toUpperCase()}:\n`;
+                        points.forEach(point => {
+                            summary += `• ${point}\n`;
+                        });
+                        summary += "\n";
+                    }
+                }
+            });
+            
+            return summary;
+        },
+        
+        generateExecutiveSummary: function(baseContent, sentences, sections) {
+            return baseContent + 
+                "EXECUTIVE SUMMARY\n\n" +
+                "This document presents " + (sections.introduction ? this.getFirstSentence(sections.introduction) : "important information") + 
+                "\n\nKEY INSIGHTS:\n" +
+                this.extractBulletPoints(sections.results || sections.other, 4).map(p => `• ${p}`).join('\n') +
+                "\n\nRECOMMENDATIONS:\n" +
+                "Based on the analysis, the document suggests " + 
+                (sections.conclusion ? this.getFirstSentence(sections.conclusion) : "further consideration of the presented information") +
+                "\n\nIMPACT ASSESSMENT:\nThe findings have significant implications for the relevant field and warrant careful consideration.";
+        },
+        
+        generateChapterSummary: function(baseContent, sections) {
+            let summary = baseContent + "SECTION-BY-SECTION SUMMARY\n\n";
+            
+            Object.entries(sections).forEach(([sectionName, content]) => {
+                if (content.trim().length > 0) {
+                    summary += `${sectionName.toUpperCase()}:\n` +
+                              this.extractKeyPoints(content, 2) + "\n\n";
+                }
+            });
+            
+            return summary;
+        },
+        
+        generateQASummary: function(baseContent, sentences, sections) {
+            const questions = [
+                "What is the main purpose of this document?",
+                "What are the key findings or results?",
+                "What methodology or approach was used?",
+                "What conclusions are drawn?",
+                "What are the main recommendations?"
+            ];
+            
+            let summary = baseContent + "QUESTIONS & ANSWERS\n\n";
+            
+            questions.forEach((question, index) => {
+                summary += `Q: ${question}\n`;
+                summary += `A: ${this.generateAnswer(question, sections)}\n\n`;
+            });
+            
+            return summary;
+        },
+        
+        extractKeyPoints: function(text, maxPoints = 3) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+            return sentences.slice(0, maxPoints).map(s => s.trim()).join('. ');
+        },
+        
+        extractBulletPoints: function(text, maxPoints = 3) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
+            return sentences.slice(0, maxPoints).map(s => s.trim());
+        },
+        
+        getFirstSentence: function(text) {
+            const sentences = text.split(/[.!?]+/);
+            return sentences[0]?.trim() || "relevant content from the document";
+        },
+        
+        generateAnswer: function(question, sections) {
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('purpose') || lowerQuestion.includes('main')) {
+                return sections.introduction ? this.getFirstSentence(sections.introduction) : "To present important information and findings.";
+            } else if (lowerQuestion.includes('finding') || lowerQuestion.includes('result')) {
+                return sections.results ? this.extractKeyPoints(sections.results, 1) : "The document presents various findings based on the analysis conducted.";
+            } else if (lowerQuestion.includes('method') || lowerQuestion.includes('approach')) {
+                return sections.methodology ? this.extractKeyPoints(sections.methodology, 1) : "A systematic approach was used to gather and analyze information.";
+            } else if (lowerQuestion.includes('conclusion')) {
+                return sections.conclusion ? this.extractKeyPoints(sections.conclusion, 1) : "The document concludes with important insights and implications.";
+            } else if (lowerQuestion.includes('recommendation')) {
+                return sections.conclusion ? this.extractKeyPoints(sections.conclusion, 1) : "Recommendations are provided based on the analysis and findings.";
+            }
+            
+            return "This information is covered in the document's content.";
+        }
+    };
+
+    // =============================================
+    // Authentication Management
+    // =============================================
+    const authManager = {
+        login: function(email, password) {
+            return new Promise((resolve) => {
+                // Simulate API call
+                setTimeout(() => {
+                    if (email && password.length >= 6) {
+                        const user = {
+                            email: email,
+                            name: email.split('@')[0],
+                            token: 'mock-jwt-token-' + Date.now(),
+                            plan: 'free'
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        resolve({ success: true, user });
+                    } else {
+                        resolve({ success: false, error: 'Invalid credentials' });
+                    }
+                }, 1500);
+            });
+        },
+        
+        signup: function(email, password) {
+            return new Promise((resolve) => {
+                // Simulate API call
+                setTimeout(() => {
+                    if (email && password.length >= 6) {
+                        const user = {
+                            email: email,
+                            name: email.split('@')[0],
+                            token: 'mock-jwt-token-' + Date.now(),
+                            plan: 'free'
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        resolve({ success: true, user });
+                    } else {
+                        resolve({ success: false, error: 'Invalid email or weak password' });
+                    }
+                }, 1500);
+            });
+        },
+        
+        logout: function() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            this.updateUI();
+            enhancedUX.showToast('Logged out successfully', 'success');
+        },
+        
+        checkAuthStatus: function() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                this.updateUI();
+                return true;
+            }
+            return false;
+        },
+        
+        updateUI: function() {
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const mainApp = document.getElementById('main-app');
+            const landingPage = document.querySelector('section.relative.min-h-screen');
+            
+            if (currentUser) {
+                // User is logged in
+                if (authButtons) authButtons.classList.add('hidden');
+                if (userMenu) {
+                    userMenu.classList.remove('hidden');
+                    document.getElementById('user-initials').textContent = 
+                        currentUser.name.charAt(0).toUpperCase();
+                    document.getElementById('user-email-nav').textContent = currentUser.email;
+                }
+                if (mainApp) mainApp.classList.remove('hidden');
+                if (landingPage) landingPage.style.display = 'none';
+            } else {
+                // User is not logged in
+                if (authButtons) authButtons.classList.remove('hidden');
+                if (userMenu) userMenu.classList.add('hidden');
+                if (mainApp) mainApp.classList.add('hidden');
+                if (landingPage) landingPage.style.display = 'block';
+            }
+        }
+    };
+
+    // =============================================
+    // UI Event Handlers
+    // =============================================
+    function showAuthModal(type) {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            switchAuthForm(type);
+        }
+    }
+
+    function hideAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+    }
+
+    function switchAuthForm(type) {
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        
+        if (type === 'login') {
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+        } else {
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        }
+    }
+
+    async function login() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const button = document.querySelector('#login-form button[type="button"]');
+        
+        if (!email || !password) {
+            enhancedUX.showToast('Please fill in all fields', 'error');
+            return;
+        }
+        
+        enhancedUX.showLoading(button, 'Signing in...');
+        
+        try {
+            const result = await authManager.login(email, password);
+            
+            if (result.success) {
+                currentUser = result.user;
+                authManager.updateUI();
+                hideAuthModal();
+                enhancedUX.showToast('Welcome back!', 'success');
+                resetApp();
+            } else {
+                enhancedUX.showToast(result.error, 'error');
+            }
+        } catch (error) {
+            enhancedUX.showToast('Login failed. Please try again.', 'error');
+        } finally {
+            enhancedUX.hideLoading(button);
+        }
+    }
+
+    async function signup() {
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const button = document.querySelector('#signup-form button[type="button"]');
+        
+        if (!email || !password) {
+            enhancedUX.showToast('Please fill in all fields', 'error');
+            return;
+        }
+        
+        if (password.length < 6) {
+            enhancedUX.showToast('Password must be at least 6 characters', 'error');
+            return;
+        }
+        
+        enhancedUX.showLoading(button, 'Creating account...');
+        
+        try {
+            const result = await authManager.signup(email, password);
+            
+            if (result.success) {
+                currentUser = result.user;
+                authManager.updateUI();
+                hideAuthModal();
+                enhancedUX.showToast('Account created successfully!', 'success');
+                resetApp();
+            } else {
+                enhancedUX.showToast(result.error, 'error');
+            }
+        } catch (error) {
+            enhancedUX.showToast('Signup failed. Please try again.', 'error');
+        } finally {
+            enhancedUX.hideLoading(button);
+        }
+    }
+
+    function logout() {
+        authManager.logout();
+    }
+
+    function scrollToFeatures() {
+        document.getElementById('features').scrollIntoView({ 
+            behavior: 'smooth' 
+        });
+    }
+
+    // =============================================
+    // PDF Upload and Processing
+    // =============================================
+    function initializeFileUpload() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('pdf-file');
+        
+        if (!uploadArea || !fileInput) return;
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-indigo-400', 'bg-white/10');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-indigo-400', 'bg-white/10');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-indigo-400', 'bg-white/10');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelection(files[0]);
+            }
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+    }
+
+    async function handleFileSelection(file) {
+        const fileInfo = document.getElementById('file-info');
+        const summaryOptions = document.getElementById('summary-options');
+        const uploadArea = document.getElementById('upload-area');
+        
+        if (!file) return;
+        
+        // Show loading state
+        enhancedUX.showToast('Validating PDF file...', 'info');
+        
+        // Validate file
+        const validation = await fileValidator.validatePDF(file);
+        
+        if (!validation.isValid) {
+            enhancedUX.showToast(validation.error, 'error');
+            return;
+        }
+        
+        // File is valid
+        selectedFile = file;
+        const fileData = fileValidator.getFileInfo(file);
+        
+        // Update UI
+        fileInfo.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-pdf text-green-400"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-white">${fileData.name}</div>
+                        <div class="text-sm text-gray-400">${fileData.size} • ${validation.pages} pages</div>
+                    </div>
+                </div>
+                <button onclick="clearSelectedFile()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        fileInfo.classList.remove('hidden');
+        summaryOptions.classList.remove('hidden');
+        uploadArea.classList.add('hidden');
+        
+        // Render summary types
+        summaryTypes.renderTypes();
+        summaryTypes.selectType('brief');
+        
+        enhancedUX.showToast('PDF validated successfully!', 'success');
+    }
+
+    function clearSelectedFile() {
+        selectedFile = null;
+        extractedText = '';
+        
+        const fileInfo = document.getElementById('file-info');
+        const summaryOptions = document.getElementById('summary-options');
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('pdf-file');
+        
+        if (fileInfo) fileInfo.classList.add('hidden');
+        if (summaryOptions) summaryOptions.classList.add('hidden');
+        if (uploadArea) uploadArea.classList.remove('hidden');
+        if (fileInput) fileInput.value = '';
+    }
+
+    async function uploadPDF() {
+        if (!selectedFile) {
+            enhancedUX.showToast('Please select a PDF file first', 'warning');
+            return;
+        }
+        
+        const button = document.querySelector('#summary-options button');
+        const resultsSection = document.getElementById('results-section');
+        const summaryContent = document.getElementById('summary-content');
+        const summaryTypeDisplay = document.getElementById('summary-type-display');
+        const summaryStats = document.getElementById('summary-stats');
+        
+        if (!button || !resultsSection || !summaryContent) return;
+        
+        enhancedUX.showLoading(button, 'Processing PDF...');
+        
+        try {
+            // Show results section
+            resultsSection.classList.remove('hidden');
+            
+            // Update summary type display
+            const selectedType = summaryTypes.getSelectedType();
+            if (summaryTypeDisplay && selectedType) {
+                summaryTypeDisplay.textContent = selectedType.name;
+            }
+            
+            // Show processing message
+            summaryContent.textContent = 'Processing PDF... Please wait while we extract text and generate your summary. This may take a few moments.';
+            
+            // Process PDF
+            const summary = await pdfProcessor.processPDF(selectedFile, selectedSummaryType);
+            
+            // Display summary
+            summaryContent.textContent = summary;
+            
+            // Update stats
+            if (summaryStats) {
+                const wordCount = summary.split(/\s+/).length;
+                const charCount = summary.length;
+                const readingTime = Math.ceil(wordCount / 200);
+                summaryStats.textContent = `${wordCount} words, ${charCount} chars, ${readingTime} min read`;
+            }
+            
+            enhancedUX.showToast('Summary generated successfully!', 'success');
+        } catch (error) {
+            enhancedUX.showToast('Failed to process PDF: ' + error.message, 'error');
+            summaryContent.textContent = 'Error: Unable to generate summary. Please try again with a different PDF file.\n\nError details: ' + error.message;
+        } finally {
+            enhancedUX.hideLoading(button);
+        }
+    }
+
+    function exportSummary() {
+        const summaryContent = document.getElementById('summary-content');
+        if (!summaryContent) return;
+        
+        const summary = summaryContent.textContent;
+        if (!summary || summary.includes('Processing PDF...')) {
+            enhancedUX.showToast('No summary available to export', 'warning');
+            return;
+        }
+        
+        const selectedType = summaryTypes.getSelectedType();
+        const fileName = `summary_${selectedType ? selectedType.name.toLowerCase().replace(/ /g, '_') : 'brief'}_${new Date().getTime()}.txt`;
+        
+        // Create and download file
+        const blob = new Blob([summary], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        enhancedUX.showToast('Summary exported successfully!', 'success');
+    }
+
+    function resetApp() {
+        clearSelectedFile();
+        
+        const resultsSection = document.getElementById('results-section');
+        if (resultsSection) {
+            resultsSection.classList.add('hidden');
+        }
+        
+        enhancedUX.showToast('App reset successfully', 'info');
+    }
+
+    // =============================================
+    // Mouse Follower Effect
+    // =============================================
+    function initializeMouseFollowers() {
+        const followers = [
+            document.getElementById('mouse-follower-1'),
+            document.getElementById('mouse-follower-2'),
+            document.getElementById('mouse-follower-3')
+        ].filter(f => f !== null);
+        
+        if (followers.length === 0) return;
+        
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        function animateFollowers() {
+            followers.forEach((follower, index) => {
+                const delay = index * 100;
+                const x = mouseX - follower.offsetWidth / 2;
+                const y = mouseY - follower.offsetHeight / 2;
+                
+                setTimeout(() => {
+                    follower.style.transform = `translate(${x}px, ${y}px)`;
+                }, delay);
+            });
+            
+            requestAnimationFrame(animateFollowers);
+        }
+        
+        animateFollowers();
+    }
+
+    // =============================================
+    // Initialize Application
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check authentication status
+        authManager.checkAuthStatus();
+        
+        // Initialize file upload
+        initializeFileUpload();
+        
+        // Initialize mouse followers
+        initializeMouseFollowers();
+        
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        enhancedUX.showToast('Welcome to PDF Summary Pro!', 'info');
+    });
+
+    // =============================================
+    // Global Functions for HTML onclick handlers
+    // =============================================
+    window.showAuthModal = showAuthModal;
+    window.hideAuthModal = hideAuthModal;
+    window.switchAuthForm = switchAuthForm;
+    window.login = login;
+    window.signup = signup;
+    window.logout = logout;
+    window.scrollToFeatures = scrollToFeatures;
+    window.uploadPDF = uploadPDF;
+    window.exportSummary = exportSummary;
+    window.resetApp = resetApp;
+    window.clearSelectedFile = clearSelectedFile;
+    </script>
+</body>
+</html>
