@@ -212,6 +212,108 @@
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
         }
+
+        /* User Menu Styles - FIXED */
+        .user-menu-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fecaca;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .user-menu-container {
+                gap: 8px;
+            }
+            
+            .user-info {
+                padding: 4px 8px;
+            }
+            
+            .user-email {
+                font-size: 12px;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .logout-btn span {
+                display: none;
+            }
+            
+            .logout-btn i {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-menu-container {
+                flex-direction: column;
+                gap: 6px;
+                align-items: flex-end;
+            }
+            
+            .user-info {
+                order: 2;
+            }
+            
+            .logout-btn {
+                order: 1;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen text-white">
@@ -254,19 +356,16 @@
                     </button>
                 </div>
                 
-                <!-- User Menu - Show when user IS logged in -->
-                <div id="user-menu" class="hidden items-center space-x-4">
-                    <div class="flex items-center space-x-3 glass-dark px-4 py-2 rounded-full">
-                        <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <span class="text-white text-sm font-semibold" id="user-initials">U</span>
-                        </div>
-                        <span class="text-sm" id="user-email-nav">user@example.com</span>
+                <!-- User Menu - Show when user IS logged in - FIXED -->
+                <div id="user-menu" class="hidden user-menu-container">
+                    <div class="user-info">
+                        <div class="user-avatar" id="user-initials">U</div>
+                        <span class="user-email" id="user-email-nav">user@example.com</span>
                     </div>
                     <!-- Logout Button - FIXED: Proper placement and styling -->
-                    <button onclick="logout()" 
-                            class="px-4 py-2 rounded-full border border-red-400/50 text-red-200 hover:bg-red-400/20 transition-all duration-300 flex items-center space-x-2">
+                    <button onclick="logout()" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span class="hidden sm:inline">Logout</span>
+                        <span class="logout-text">Logout</span>
                     </button>
                 </div>
             </div>
