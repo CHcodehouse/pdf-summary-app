@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-  // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -15,9 +14,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return { 
       statusCode: 405, 
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers: {'Access-Control-Allow-Origin': '*'},
       body: JSON.stringify({ error: 'Method not allowed' }) 
     };
   }
@@ -28,14 +25,11 @@ exports.handler = async (event, context) => {
     if (!text) {
       return {
         statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
+        headers: {'Access-Control-Allow-Origin': '*'},
         body: JSON.stringify({ error: 'Text is required' })
       };
     }
 
-    // Simple summarization logic
     let summary = '';
     const sentences = text.split('. ').filter(s => s.length > 10);
     
@@ -70,10 +64,8 @@ exports.handler = async (event, context) => {
   } catch (error) {
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({ error: 'Internal server error: ' + error.message })
+      headers: {'Access-Control-Allow-Origin': '*'},
+      body: JSON.stringify({ error: 'Internal server error' })
     };
   }
 };
