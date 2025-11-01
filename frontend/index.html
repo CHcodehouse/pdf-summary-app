@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -28,7 +29,6 @@
             min-height: 100vh;
         }
         
-        /* Floating Animation */
         .float {
             animation: float 6s ease-in-out infinite;
         }
@@ -38,12 +38,10 @@
             50% { transform: translateY(-20px); }
         }
         
-        /* Animation Delays */
         .animation-delay-1000 { animation-delay: 1000ms; }
         .animation-delay-2000 { animation-delay: 2000ms; }
         .animation-delay-4000 { animation-delay: 4000ms; }
         
-        /* Mouse Follower Elements */
         .mouse-follower {
             position: absolute;
             width: 300px;
@@ -55,7 +53,6 @@
             transition: transform 0.1s ease-out;
         }
         
-        /* Glass Morphism */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -68,7 +65,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Gradient Text */
         .gradient-text {
             background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
             -webkit-background-clip: text;
@@ -76,7 +72,6 @@
             background-clip: text;
         }
         
-        /* Shine Effect */
         .shine {
             position: relative;
             overflow: hidden;
@@ -97,7 +92,6 @@
             left: 100%;
         }
         
-        /* Pulse Animation */
         .pulse {
             animation: pulse 2s infinite;
         }
@@ -107,7 +101,6 @@
             50% { opacity: 0.7; }
         }
         
-        /* Modal Animations */
         .modal-enter {
             animation: modalEnter 0.3s ease-out forwards;
         }
@@ -138,7 +131,6 @@
             }
         }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -152,7 +144,6 @@
             border-radius: 10px;
         }
         
-        /* Toast Notifications */
         .toast {
             position: fixed;
             top: 20px;
@@ -187,7 +178,6 @@
             background: #3b82f6;
         }
         
-        /* Progress Bar */
         .progress-bar {
             width: 100%;
             height: 4px;
@@ -203,7 +193,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Fade in animation */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -213,7 +202,6 @@
             animation: fadeIn 0.6s ease-out forwards;
         }
 
-        /* User Menu Styles - FIXED */
         .user-menu-container {
             display: flex;
             align-items: center;
@@ -271,7 +259,53 @@
             transform: translateY(-1px);
         }
 
-        /* Responsive Design */
+        .credit-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .pricing-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card.popular {
+            border-color: #6366f1;
+            transform: scale(1.05);
+            position: relative;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: #ef4444; width: 25%; }
+        .strength-fair { background: #f59e0b; width: 50%; }
+        .strength-good { background: #3b82f6; width: 75%; }
+        .strength-strong { background: #10b981; width: 100%; }
+
         @media (max-width: 768px) {
             .user-menu-container {
                 gap: 8px;
@@ -296,6 +330,15 @@
             
             .logout-btn i {
                 margin: 0;
+            }
+
+            .credit-display {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
             }
         }
 
@@ -356,13 +399,19 @@
                     </button>
                 </div>
                 
-                <!-- User Menu - Show when user IS logged in - FIXED -->
+                <!-- User Menu - Show when user IS logged in -->
                 <div id="user-menu" class="hidden user-menu-container">
+                    <!-- Credit Display -->
+                    <div class="credit-display">
+                        <i class="fas fa-coins"></i>
+                        <span id="user-credits">0</span>
+                        <span>credits</span>
+                    </div>
                     <div class="user-info">
                         <div class="user-avatar" id="user-initials">U</div>
                         <span class="user-email" id="user-email-nav">user@example.com</span>
                     </div>
-                    <!-- Logout Button - FIXED: Proper placement and styling -->
+                    <!-- Logout Button -->
                     <button onclick="logout()" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="logout-text">Logout</span>
@@ -537,6 +586,183 @@
         </div>
     </section>
 
+    <!-- Pricing Section -->
+    <section id="pricing" class="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Simple, Transparent Pricing</h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Choose the plan that works best for you. No hidden fees.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Free Plan -->
+                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold mb-2">Free</h3>
+                        <div class="text-4xl font-bold text-white mb-4">$0<span class="text-lg text-gray-300">/month</span></div>
+                        <p class="text-gray-300">Perfect for getting started</p>
+                    </div>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>5 credits per month</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Basic summary types</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Up to 10-page PDFs</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Text export only</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-gray-500">
+                            <i class="fas fa-times"></i>
+                            <span>Priority processing</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-gray-500">
+                            <i class="fas fa-times"></i>
+                            <span>Advanced AI models</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showAuthModal('signup')" 
+                            class="w-full py-3 bg-white/10 border border-white/20 rounded-xl font-semibold text-white hover:bg-white/20 transition-all duration-300">
+                        Get Started Free
+                    </button>
+                </div>
+                
+                <!-- Pro Plan -->
+                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300 popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold mb-2">Pro</h3>
+                        <div class="text-4xl font-bold text-white mb-4">$9<span class="text-lg text-gray-300">/month</span></div>
+                        <p class="text-gray-300">For power users and professionals</p>
+                    </div>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>100 credits per month</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>All 6 summary types</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Up to 50-page PDFs</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>All export formats</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Priority processing</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-gray-500">
+                            <i class="fas fa-times"></i>
+                            <span>Advanced AI models</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="upgradeToPro()" 
+                            class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Upgrade to Pro
+                    </button>
+                </div>
+                
+                <!-- Enterprise Plan -->
+                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+                        <div class="text-4xl font-bold text-white mb-4">$29<span class="text-lg text-gray-300">/month</span></div>
+                        <p class="text-gray-300">For teams and businesses</p>
+                    </div>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>500 credits per month</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>All summary types</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Unlimited PDF size</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>All export formats</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Priority processing</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check text-green-400"></i>
+                            <span>Advanced AI models</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="contactSales()" 
+                            class="w-full py-3 bg-white/10 border border-white/20 rounded-xl font-semibold text-white hover:bg-white/20 transition-all duration-300">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Credit Information -->
+            <div class="text-center mt-16 glass rounded-3xl p-8 max-w-4xl mx-auto">
+                <h3 class="text-2xl font-bold mb-4">How Credits Work</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3 text-indigo-300">Credit Usage</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-file-pdf text-indigo-400"></i>
+                                <span>1 credit = 1 PDF summary</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-sync-alt text-indigo-400"></i>
+                                <span>Credits reset monthly</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-bolt text-indigo-400"></i>
+                                <span>Unused credits don't roll over</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3 text-indigo-300">Additional Credits</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-shopping-cart text-indigo-400"></i>
+                                <span>Buy extra credits anytime</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-tags text-indigo-400"></i>
+                                <span>10 credits for $2</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <i class="fas fa-percentage text-indigo-400"></i>
+                                <span>Bulk discounts available</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Interactive Auth Modal -->
     <div id="auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideAuthModal()"></div>
@@ -594,6 +820,16 @@
                     
                     <form class="space-y-6">
                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                            <div class="relative">
+                                <input type="text" id="signup-name" 
+                                       class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
+                                       placeholder="Enter your full name">
+                                <i class="fas fa-user absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
                             <div class="relative">
                                 <input type="email" id="signup-email" 
@@ -608,9 +844,19 @@
                             <div class="relative">
                                 <input type="password" id="signup-password" 
                                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all duration-300"
-                                       placeholder="Create a password">
+                                       placeholder="Create a password"
+                                       oninput="checkPasswordStrength(this.value)">
                                 <i class="fas fa-lock absolute right-3 top-3 text-gray-400"></i>
                             </div>
+                            <div id="password-strength" class="password-strength"></div>
+                            <div id="password-feedback" class="text-xs mt-1 text-gray-400"></div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="terms" class="w-4 h-4 rounded bg-white/10 border-white/20">
+                            <label for="terms" class="text-sm text-gray-300">
+                                I agree to the <a href="#" class="text-indigo-300 hover:text-indigo-200">Terms of Service</a> and <a href="#" class="text-indigo-300 hover:text-indigo-200">Privacy Policy</a>
+                            </label>
                         </div>
                         
                         <button type="button" onclick="signup()" 
@@ -636,6 +882,53 @@
         </div>
     </div>
 
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hidePaymentModal()"></div>
+        
+        <div class="relative w-full max-w-md">
+            <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold mb-2 text-white">Complete Payment</h2>
+                    <p class="text-gray-300">Purchase <span id="payment-credits">10</span> credits</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-white/10 rounded-xl p-4 border border-white/20">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">Credits:</span>
+                            <span class="font-semibold text-white" id="payment-credits-display">10</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Total:</span>
+                            <span class="text-xl font-bold text-white">$<span id="payment-total">2.00</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stripe Payment Element -->
+                    <div id="payment-element" class="bg-white/5 rounded-xl p-4 border border-white/20">
+                        <!-- Stripe will inject the payment form here -->
+                        <div class="text-center text-gray-400 py-8">
+                            <i class="fas fa-credit-card text-2xl mb-2"></i>
+                            <p>Payment form loading...</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="processPayment()" 
+                            class="w-full py-3 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Pay $<span id="payment-button-total">2.00</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Close Button -->
+            <button onclick="hidePaymentModal()" 
+                    class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Main App Section (Hidden until login) -->
     <div id="main-app" class="hidden min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-6xl mx-auto">
@@ -643,6 +936,29 @@
             <div class="text-center mb-12">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">PDF Summary Pro</h1>
                 <p class="text-xl text-gray-300">Upload your PDF and get AI-powered summaries in multiple formats</p>
+            </div>
+            
+            <!-- Credit Info Banner -->
+            <div class="glass rounded-2xl p-6 mb-8 border border-indigo-500/30">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-coins text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Your Credits</h3>
+                            <p class="text-gray-300">Credits reset on <span id="reset-date">1st of next month</span></p>
+                        </div>
+                    </div>
+                    <div class="text-center md:text-right">
+                        <div class="text-3xl font-bold text-indigo-300" id="current-credits">5</div>
+                        <p class="text-gray-300">credits remaining</p>
+                    </div>
+                    <button onclick="showCreditModal()" 
+                            class="mt-4 md:mt-0 px-6 py-2 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transition-all duration-300">
+                        Buy More Credits
+                    </button>
+                </div>
             </div>
             
             <!-- Upload Section -->
@@ -671,9 +987,19 @@
                         <!-- Summary types will be rendered here by JavaScript -->
                     </div>
                     
+                    <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-4 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            <div>
+                                <p class="text-yellow-200 font-semibold">This will use 1 credit</p>
+                                <p class="text-yellow-300 text-sm">You have <span id="credits-before-processing">5</span> credits remaining</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <button onclick="uploadPDF()" 
                             class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
-                        <span>Generate Summary</span>
+                        <span>Generate Summary (1 Credit)</span>
                         <i class="fas fa-magic"></i>
                     </button>
                 </div>
@@ -709,6 +1035,76 @@
         </div>
     </div>
 
+    <!-- Credit Purchase Modal -->
+    <div id="credit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideCreditModal()"></div>
+        
+        <div class="relative w-full max-w-md">
+            <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold mb-2 text-white">Buy More Credits</h2>
+                    <p class="text-gray-300">Get additional credits for your PDF summaries</p>
+                </div>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(10)">
+                        <div>
+                            <h4 class="font-semibold text-white">10 Credits</h4>
+                            <p class="text-gray-300 text-sm">Perfect for occasional use</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-white">$2.00</div>
+                            <div class="text-gray-400 text-sm">$0.20 per credit</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-indigo-500/50 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(50)">
+                        <div>
+                            <h4 class="font-semibold text-white">50 Credits</h4>
+                            <p class="text-gray-300 text-sm">Most popular choice</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-white">$8.00</div>
+                            <div class="text-gray-400 text-sm">$0.16 per credit</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(100)">
+                        <div>
+                            <h4 class="font-semibold text-white">100 Credits</h4>
+                            <p class="text-gray-300 text-sm">Best value for heavy users</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-white">$14.00</div>
+                            <div class="text-gray-400 text-sm">$0.14 per credit</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center text-gray-400 text-sm mb-6">
+                    <p>Credits never expire and can be used anytime</p>
+                </div>
+                
+                <button onclick="showPaymentModal()" 
+                        class="w-full py-3 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Purchase <span id="selected-credits">10</span> Credits - $<span id="selected-price">2.00</span>
+                </button>
+                
+                <div class="text-center mt-4">
+                    <button onclick="hideCreditModal()" class="text-gray-400 hover:text-gray-300 transition-colors">
+                        Maybe later
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Close Button -->
+            <button onclick="hideCreditModal()" 
+                    class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Main Application Script -->
     <script>
     // Set up PDF.js worker
@@ -721,6 +1117,13 @@
     let selectedFile = null;
     let selectedSummaryType = 'brief';
     let extractedText = '';
+    let userCredits = 5;
+    let selectedCreditPackage = {
+        credits: 10,
+        price: 2.00
+    };
+    let stripe = null;
+    let elements = null;
 
     // =============================================
     // Enhanced UX Utilities
@@ -777,30 +1180,118 @@
             if (originalHTML) {
                 button.innerHTML = originalHTML;
             }
+        }
+    };
+
+    // =============================================
+    // Password Strength Checker
+    // =============================================
+    function checkPasswordStrength(password) {
+        const strengthBar = document.getElementById('password-strength');
+        const feedback = document.getElementById('password-feedback');
+        
+        if (!password) {
+            strengthBar.className = 'password-strength';
+            feedback.textContent = '';
+            return;
+        }
+        
+        let strength = 0;
+        let feedbackText = '';
+        
+        // Length check
+        if (password.length >= 8) strength += 1;
+        
+        // Contains lowercase
+        if (/[a-z]/.test(password)) strength += 1;
+        
+        // Contains uppercase
+        if (/[A-Z]/.test(password)) strength += 1;
+        
+        // Contains numbers
+        if (/[0-9]/.test(password)) strength += 1;
+        
+        // Contains special characters
+        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+        
+        // Update UI
+        switch(strength) {
+            case 0:
+            case 1:
+                strengthBar.className = 'password-strength strength-weak';
+                feedbackText = 'Weak password';
+                break;
+            case 2:
+                strengthBar.className = 'password-strength strength-fair';
+                feedbackText = 'Fair password';
+                break;
+            case 3:
+                strengthBar.className = 'password-strength strength-good';
+                feedbackText = 'Good password';
+                break;
+            case 4:
+            case 5:
+                strengthBar.className = 'password-strength strength-strong';
+                feedbackText = 'Strong password';
+                break;
+        }
+        
+        feedback.textContent = feedbackText;
+        return strength;
+    }
+
+    // =============================================
+    // Credit Management
+    // =============================================
+    const creditManager = {
+        initializeCredits: function() {
+            const savedCredits = localStorage.getItem('userCredits');
+            if (savedCredits) {
+                userCredits = parseInt(savedCredits);
+            }
+            this.updateCreditDisplay();
         },
         
-        createProgressBar: function(parent, text = 'Processing...') {
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'mt-4';
-            progressContainer.innerHTML = `
-                <div class="text-center mb-2">${text}</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
-                </div>
-            `;
-            
-            if (parent) {
-                parent.appendChild(progressContainer);
+        updateCreditDisplay: function() {
+            // Update navigation
+            const navCredits = document.getElementById('user-credits');
+            if (navCredits) {
+                navCredits.textContent = userCredits;
             }
             
-            return progressContainer;
+            // Update main app
+            const currentCredits = document.getElementById('current-credits');
+            const creditsBeforeProcessing = document.getElementById('credits-before-processing');
+            
+            if (currentCredits) currentCredits.textContent = userCredits;
+            if (creditsBeforeProcessing) creditsBeforeProcessing.textContent = userCredits;
         },
         
-        updateProgressBar: function(container, progress) {
-            const fill = container.querySelector('.progress-fill');
-            if (fill) {
-                fill.style.width = `${progress}%`;
+        useCredit: function() {
+            if (userCredits > 0) {
+                userCredits--;
+                localStorage.setItem('userCredits', userCredits);
+                this.updateCreditDisplay();
+                return true;
             }
+            return false;
+        },
+        
+        addCredits: function(amount) {
+            userCredits += amount;
+            localStorage.setItem('userCredits', userCredits);
+            this.updateCreditDisplay();
+            enhancedUX.showToast(`Successfully added ${amount} credits!`, 'success');
+        },
+        
+        getResetDate: function() {
+            const now = new Date();
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            return nextMonth.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
         }
     };
 
@@ -1214,47 +1705,86 @@ Summary Type: ${summaryTypes.getSelectedType().name}
     const authManager = {
         login: function(email, password) {
             return new Promise((resolve) => {
-                // Simulate API call
+                // Simulate API call with real validation
                 setTimeout(() => {
-                    if (email && password.length >= 6) {
+                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
+                    
+                    if (users[email] && users[email].password === this.hashPassword(password)) {
                         const user = {
                             email: email,
-                            name: email.split('@')[0],
-                            token: 'mock-jwt-token-' + Date.now(),
-                            plan: 'free'
+                            name: users[email].name,
+                            token: 'real-jwt-token-' + Date.now(),
+                            plan: users[email].plan || 'free',
+                            credits: users[email].credits || 5
                         };
                         localStorage.setItem('currentUser', JSON.stringify(user));
+                        userCredits = user.credits;
                         resolve({ success: true, user });
                     } else {
-                        resolve({ success: false, error: 'Invalid credentials' });
+                        resolve({ success: false, error: 'Invalid email or password' });
                     }
                 }, 1500);
             });
         },
         
-        signup: function(email, password) {
+        signup: function(name, email, password) {
             return new Promise((resolve) => {
-                // Simulate API call
+                // Simulate API call with real validation
                 setTimeout(() => {
-                    if (email && password.length >= 6) {
-                        const user = {
-                            email: email,
-                            name: email.split('@')[0],
-                            token: 'mock-jwt-token-' + Date.now(),
-                            plan: 'free'
-                        };
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                        resolve({ success: true, user });
-                    } else {
-                        resolve({ success: false, error: 'Invalid email or weak password' });
+                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
+                    
+                    if (users[email]) {
+                        resolve({ success: false, error: 'Email already registered' });
+                        return;
                     }
+                    
+                    if (password.length < 6) {
+                        resolve({ success: false, error: 'Password must be at least 6 characters' });
+                        return;
+                    }
+                    
+                    // Create new user
+                    users[email] = {
+                        name: name,
+                        password: this.hashPassword(password),
+                        plan: 'free',
+                        credits: 5,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
+                    
+                    const user = {
+                        email: email,
+                        name: name,
+                        token: 'real-jwt-token-' + Date.now(),
+                        plan: 'free',
+                        credits: 5
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    userCredits = 5;
+                    resolve({ success: true, user });
                 }, 1500);
             });
+        },
+        
+        hashPassword: function(password) {
+            // Simple hash function for demo purposes
+            // In a real app, use proper hashing like bcrypt
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString();
         },
         
         logout: function() {
             localStorage.removeItem('currentUser');
             currentUser = null;
+            userCredits = 5;
             this.updateUI();
             enhancedUX.showToast('Logged out successfully', 'success');
         },
@@ -1263,7 +1793,9 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             const userData = localStorage.getItem('currentUser');
             if (userData) {
                 currentUser = JSON.parse(userData);
+                userCredits = currentUser.credits || 5;
                 this.updateUI();
+                creditManager.initializeCredits();
                 return true;
             }
             return false;
@@ -1274,6 +1806,7 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             const userMenu = document.getElementById('user-menu');
             const mainApp = document.getElementById('main-app');
             const landingPage = document.querySelector('section.relative.min-h-screen');
+            const pricingSection = document.getElementById('pricing');
             
             if (currentUser) {
                 // User is logged in
@@ -1286,18 +1819,127 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 }
                 if (mainApp) mainApp.classList.remove('hidden');
                 if (landingPage) landingPage.style.display = 'none';
+                if (pricingSection) pricingSection.style.display = 'none';
+                
+                // Update reset date
+                const resetDate = document.getElementById('reset-date');
+                if (resetDate) {
+                    resetDate.textContent = creditManager.getResetDate();
+                }
             } else {
                 // User is not logged in
                 if (authButtons) authButtons.classList.remove('hidden');
                 if (userMenu) userMenu.classList.add('hidden');
                 if (mainApp) mainApp.classList.add('hidden');
-                if (landingPage) landingPage.style.display = 'block';
+                if (landingPage) landingPage.style.display = 'flex';
+                if (pricingSection) pricingSection.style.display = 'block';
             }
         }
     };
 
     // =============================================
-    // UI Event Handlers
+    // Payment Integration
+    // =============================================
+    const paymentManager = {
+        initializeStripe: function() {
+            // Initialize Stripe with test key
+            stripe = Stripe('pk_test_51ExampleTestKey1234567890');
+            elements = stripe.elements({
+                appearance: {
+                    theme: 'night',
+                    variables: {
+                        colorPrimary: '#6366f1',
+                        colorBackground: 'rgba(255, 255, 255, 0.1)',
+                        colorText: 'white',
+                        colorDanger: '#ef4444',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                        spacingUnit: '4px',
+                        borderRadius: '8px'
+                    }
+                }
+            });
+        },
+        
+        createPaymentIntent: function(amount, credits) {
+            return new Promise((resolve) => {
+                // Simulate API call to create payment intent
+                setTimeout(() => {
+                    resolve({
+                        clientSecret: 'pi_test_example_client_secret_123456',
+                        amount: amount,
+                        credits: credits
+                    });
+                }, 1000);
+            });
+        },
+        
+        setupPaymentForm: async function(amount, credits) {
+            try {
+                const { clientSecret } = await this.createPaymentIntent(amount, credits);
+                
+                const paymentElement = elements.create('payment', {
+                    clientSecret: clientSecret,
+                });
+                
+                await paymentElement.mount('#payment-element');
+                
+                return paymentElement;
+            } catch (error) {
+                console.error('Error setting up payment:', error);
+                enhancedUX.showToast('Error setting up payment form', 'error');
+                throw error;
+            }
+        },
+        
+        processPayment: async function(paymentElement) {
+            const button = document.querySelector('#payment-modal button');
+            enhancedUX.showLoading(button, 'Processing payment...');
+            
+            try {
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: window.location.href,
+                    },
+                    redirect: 'if_required'
+                });
+                
+                if (error) {
+                    enhancedUX.showToast(error.message, 'error');
+                    enhancedUX.hideLoading(button);
+                    return false;
+                }
+                
+                // Simulate successful payment
+                setTimeout(() => {
+                    enhancedUX.hideLoading(button);
+                    this.handleSuccessfulPayment();
+                }, 2000);
+                
+                return true;
+            } catch (error) {
+                enhancedUX.hideLoading(button);
+                enhancedUX.showToast('Payment processing failed', 'error');
+                return false;
+            }
+        },
+        
+        handleSuccessfulPayment: function() {
+            creditManager.addCredits(selectedCreditPackage.credits);
+            hidePaymentModal();
+            hideCreditModal();
+            enhancedUX.showToast(`Payment successful! ${selectedCreditPackage.credits} credits added to your account.`, 'success');
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.credits = userCredits;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+        }
+    };
+
+    // =============================================
+    // Modal Functions
     // =============================================
     function showAuthModal(type) {
         const modal = document.getElementById('auth-modal');
@@ -1310,6 +1952,47 @@ Summary Type: ${summaryTypes.getSelectedType().name}
 
     function hideAuthModal() {
         const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+    }
+
+    function showCreditModal() {
+        const modal = document.getElementById('credit-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function hideCreditModal() {
+        const modal = document.getElementById('credit-modal');
+        if (modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+    }
+
+    function showPaymentModal() {
+        const modal = document.getElementById('payment-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Update payment modal with selected package
+            document.getElementById('payment-credits').textContent = selectedCreditPackage.credits;
+            document.getElementById('payment-credits-display').textContent = selectedCreditPackage.credits;
+            document.getElementById('payment-total').textContent = selectedCreditPackage.price.toFixed(2);
+            document.getElementById('payment-button-total').textContent = selectedCreditPackage.price.toFixed(2);
+            
+            // Setup payment form
+            paymentManager.setupPaymentForm(selectedCreditPackage.price * 100, selectedCreditPackage.credits);
+        }
+    }
+
+    function hidePaymentModal() {
+        const modal = document.getElementById('payment-modal');
         if (modal) {
             modal.classList.remove('flex');
             modal.classList.add('hidden');
@@ -1329,6 +2012,39 @@ Summary Type: ${summaryTypes.getSelectedType().name}
         }
     }
 
+    function selectCreditPackage(credits) {
+        let price = 0;
+        switch(credits) {
+            case 10:
+                price = 2.00;
+                break;
+            case 50:
+                price = 8.00;
+                break;
+            case 100:
+                price = 14.00;
+                break;
+        }
+        
+        selectedCreditPackage = { credits, price };
+        
+        // Update UI
+        document.getElementById('selected-credits').textContent = credits;
+        document.getElementById('selected-price').textContent = price.toFixed(2);
+        
+        // Update selection visual
+        document.querySelectorAll('#credit-modal [onclick^="selectCreditPackage"]').forEach(el => {
+            el.classList.remove('border-indigo-500/50');
+            el.classList.add('border-white/20');
+        });
+        
+        event.currentTarget.classList.remove('border-white/20');
+        event.currentTarget.classList.add('border-indigo-500/50');
+    }
+
+    // =============================================
+    // Authentication Functions
+    // =============================================
     async function login() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
@@ -1361,12 +2077,19 @@ Summary Type: ${summaryTypes.getSelectedType().name}
     }
 
     async function signup() {
+        const name = document.getElementById('signup-name').value;
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
+        const terms = document.getElementById('terms').checked;
         const button = document.querySelector('#signup-form button[type="button"]');
         
-        if (!email || !password) {
+        if (!name || !email || !password) {
             enhancedUX.showToast('Please fill in all fields', 'error');
+            return;
+        }
+        
+        if (!terms) {
+            enhancedUX.showToast('Please accept the terms and conditions', 'error');
             return;
         }
         
@@ -1375,10 +2098,16 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             return;
         }
         
+        const passwordStrength = checkPasswordStrength(password);
+        if (passwordStrength < 2) {
+            enhancedUX.showToast('Please choose a stronger password', 'error');
+            return;
+        }
+        
         enhancedUX.showLoading(button, 'Creating account...');
         
         try {
-            const result = await authManager.signup(email, password);
+            const result = await authManager.signup(name, email, password);
             
             if (result.success) {
                 currentUser = result.user;
@@ -1404,6 +2133,26 @@ Summary Type: ${summaryTypes.getSelectedType().name}
         document.getElementById('features').scrollIntoView({ 
             behavior: 'smooth' 
         });
+    }
+
+    // =============================================
+    // Payment Functions
+    // =============================================
+    async function processPayment() {
+        const paymentElement = elements.getElement('payment');
+        await paymentManager.processPayment(paymentElement);
+    }
+
+    function upgradeToPro() {
+        enhancedUX.showToast('Redirecting to upgrade page...', 'info');
+        // In a real app, this would redirect to a payment page
+        setTimeout(() => {
+            enhancedUX.showToast('Pro plan features coming soon!', 'info');
+        }, 1500);
+    }
+
+    function contactSales() {
+        enhancedUX.showToast('Please contact sales@pdfsummarypro.com for enterprise plans', 'info');
     }
 
     // =============================================
@@ -1520,6 +2269,13 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             return;
         }
         
+        // Check if user has enough credits
+        if (userCredits < 1) {
+            enhancedUX.showToast('Not enough credits. Please purchase more credits to continue.', 'error');
+            showCreditModal();
+            return;
+        }
+        
         const button = document.querySelector('#summary-options button');
         const resultsSection = document.getElementById('results-section');
         const summaryContent = document.getElementById('summary-content');
@@ -1531,6 +2287,14 @@ Summary Type: ${summaryTypes.getSelectedType().name}
         enhancedUX.showLoading(button, 'Processing PDF...');
         
         try {
+            // Use one credit
+            if (!creditManager.useCredit()) {
+                enhancedUX.showToast('Not enough credits. Please purchase more credits.', 'error');
+                enhancedUX.hideLoading(button);
+                showCreditModal();
+                return;
+            }
+            
             // Show results section
             resultsSection.classList.remove('hidden');
             
@@ -1558,9 +2322,25 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             }
             
             enhancedUX.showToast('Summary generated successfully!', 'success');
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.credits = userCredits;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Update user in users database
+                const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
+                if (users[currentUser.email]) {
+                    users[currentUser.email].credits = userCredits;
+                    localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
+                }
+            }
         } catch (error) {
             enhancedUX.showToast('Failed to process PDF: ' + error.message, 'error');
             summaryContent.textContent = 'Error: Unable to generate summary. Please try again with a different PDF file.\n\nError details: ' + error.message;
+            
+            // Refund credit if processing failed
+            creditManager.addCredits(1);
         } finally {
             enhancedUX.hideLoading(button);
         }
@@ -1645,6 +2425,9 @@ Summary Type: ${summaryTypes.getSelectedType().name}
     // Initialize Application
     // =============================================
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Stripe
+        paymentManager.initializeStripe();
+        
         // Check authentication status
         authManager.checkAuthStatus();
         
@@ -1684,6 +2467,15 @@ Summary Type: ${summaryTypes.getSelectedType().name}
     window.exportSummary = exportSummary;
     window.resetApp = resetApp;
     window.clearSelectedFile = clearSelectedFile;
+    window.showCreditModal = showCreditModal;
+    window.hideCreditModal = hideCreditModal;
+    window.selectCreditPackage = selectCreditPackage;
+    window.showPaymentModal = showPaymentModal;
+    window.hidePaymentModal = hidePaymentModal;
+    window.processPayment = processPayment;
+    window.upgradeToPro = upgradeToPro;
+    window.contactSales = contactSales;
+    window.checkPasswordStrength = checkPasswordStrength;
     </script>
 </body>
 </html>

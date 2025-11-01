@@ -1,5 +1,6 @@
 const pdf = require('pdf-parse');
 const { generateSummary } = require('../utils/summarizer');
+const Credit = require('../models/Credit'); // NEW
 
 const summarizePDF = async (req, res) => {
   console.log('=== PDF UPLOAD STARTED ===');
@@ -17,6 +18,12 @@ const summarizePDF = async (req, res) => {
       type: req.file.mimetype
     });
 
+    // NEW: Deduct credits before processing
+    if (req.creditInfo) {
+      console.log(`💰 Deducting ${req.creditInfo.cost} credits for ${req.creditInfo.type}`);
+      await Credit.deductCredits(req.user.uid, req.creditInfo.cost, `summary_${req.creditInfo.type}`);
+    }
+
     // Simple text extraction test
     console.log('🔍 Attempting to extract text from PDF...');
     
@@ -28,6 +35,12 @@ const summarizePDF = async (req, res) => {
     
     if (text.length < 10) {
       console.log('❌ Very little text extracted - PDF might be scanned images');
+      
+      // NEW: Refund credits if processing failed
+      if (req.creditInfo && req.creditInfo.cost) {
+        await Credit.addCredits(req.user.uid, req.creditInfo.cost, 'refund_failed_processing');
+      }
+      
       return res.status(400).json({ 
         error: 'This PDF appears to be scanned images or has no selectable text. Please use a PDF with readable text.' 
       });
@@ -37,14 +50,21 @@ const summarizePDF = async (req, res) => {
 
     // Generate simple summary
     const detailed = req.body.detailed === 'true';
-    console.log('🤖 Generating summary, detailed:', detailed);
+    const summaryType = req.body.summaryType || 'basic'; // NEW
+    console.log('🤖 Generating summary, type:', summaryType);
     
     const summary = await generateSummary(text, detailed);
     console.log('✅ Summary generated successfully');
 
+    // NEW: Get updated credit balance
+    const remainingCredits = await Credit.getUserCredits(req.user.uid);
+
     // Success response
     res.json({
       summary: summary,
+      creditsUsed: req.creditInfo?.cost || 0, // NEW
+      remainingCredits: remainingCredits, // NEW
+      summaryType: summaryType, // NEW
       usage: {
         summariesToday: 1,
         subscription: 'free',
@@ -55,6 +75,16 @@ const summarizePDF = async (req, res) => {
   } catch (error) {
     console.error('❌ CRITICAL ERROR:', error.message);
     console.error('Full error:', error);
+    
+    // NEW: Refund credits if processing failed
+    if (req.creditInfo && req.creditInfo.cost) {
+      try {
+        await Credit.addCredits(req.user.uid, req.creditInfo.cost, 'refund_failed_processing');
+        console.log('💰 Credits refunded due to processing error');
+      } catch (refundError) {
+        console.error('❌ Credit refund failed:', refundError);
+      }
+    }
     
     // More specific error messages
     if (error.message.includes('PDF')) {
