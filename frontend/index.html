@@ -2473,6 +2473,94 @@ Summary Type: ${summaryTypes.getSelectedType().name}
         };
 
         // =============================================
+        // SUBSCRIPTION MANAGER
+        // =============================================
+        const subscriptionManager = {
+            subscribe: function(plan) {
+                if (!authManager.checkAuthStatus()) {
+                    enhancedUX.showToast('Please log in to subscribe', 'warning');
+                    showAuthModal('login');
+                    return;
+                }
+
+                let price, credits, planName;
+                
+                switch(plan) {
+                    case 'PRO':
+                        price = 29;
+                        credits = 500;
+                        planName = 'Pro';
+                        break;
+                    case 'ENTERPRISE':
+                        price = 99;
+                        credits = 2000;
+                        planName = 'Enterprise';
+                        break;
+                    default:
+                        enhancedUX.showToast('Invalid plan selected', 'error');
+                        return;
+                }
+
+                enhancedUX.showToast(`Processing ${planName} subscription...`, 'info');
+                
+                // Simulate subscription processing
+                setTimeout(() => {
+                    // Update user plan and credits
+                    currentUser.plan = plan.toLowerCase();
+                    userCredits = credits;
+                    
+                    // Update localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update users database
+                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
+                    if (users[currentUser.email]) {
+                        users[currentUser.email].plan = plan.toLowerCase();
+                        users[currentUser.email].credits = credits;
+                        localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
+                    }
+                    
+                    // Update UI
+                    creditManager.updateCreditDisplay();
+                    enhancedUX.showToast(`Successfully subscribed to ${planName} plan! ${credits} credits added.`, 'success');
+                    
+                    // Show main app if not already visible
+                    authManager.updateUI();
+                }, 2000);
+            },
+            
+            cancelSubscription: function() {
+                if (!currentUser || currentUser.plan === 'free') {
+                    enhancedUX.showToast('No active subscription found', 'warning');
+                    return;
+                }
+                
+                enhancedUX.showToast('Cancelling subscription...', 'info');
+                
+                // Simulate subscription cancellation
+                setTimeout(() => {
+                    currentUser.plan = 'free';
+                    userCredits = 5; // Reset to free tier credits
+                    
+                    // Update localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update users database
+                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
+                    if (users[currentUser.email]) {
+                        users[currentUser.email].plan = 'free';
+                        users[currentUser.email].credits = 5;
+                        localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
+                    }
+                    
+                    // Update UI
+                    creditManager.updateCreditDisplay();
+                    enhancedUX.showToast('Subscription cancelled successfully. Reverted to Free plan.', 'success');
+                }, 1500);
+            }
+        };
+
+        // =============================================
         // MODAL FUNCTIONS
         // =============================================
         function showAuthModal(type) {
@@ -3006,12 +3094,7 @@ Summary Type: ${summaryTypes.getSelectedType().name}
         window.contactSales = contactSales;
         window.checkPasswordStrength = checkPasswordStrength;
         window.handleFeatureClick = handleFeatureClick;
+        window.subscriptionManager = subscriptionManager;
     </script>
-    
-    <!-- =============================================
-         SUBSCRIPTION MANAGER INTEGRATION
-    ============================================= -->
-    <script src="js/payment-config.js"></script>
-    <script src="js/subscription-manager.js"></script>
 </body>
 </html>
