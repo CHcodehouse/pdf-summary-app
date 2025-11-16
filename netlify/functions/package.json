@@ -1,0 +1,7 @@
+{
+  "name": "pdf-summary-functions",
+  "version": "1.0.0",
+  "dependencies": {
+    "stripe": "^13.11.0"
+  }
+}
