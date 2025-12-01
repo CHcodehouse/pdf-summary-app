@@ -4,27 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Summary Pro - AI Powered Document Summarization</title>
-    
-    <!-- External Libraries -->
-     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://js.stripe.com/v3/"></script>
     
-    <!-- =============================================
-         EMBEDDED CSS STYLES
-    ============================================= -->
     <style>
-        /* CSS Variables */
         :root {
             --primary: #6366f1;
             --secondary: #8b5cf6;
             --accent: #06b6d4;
         }
         
-        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -38,7 +29,6 @@
             min-height: 100vh;
         }
         
-        /* Animations */
         .float {
             animation: float 6s ease-in-out infinite;
         }
@@ -50,7 +40,6 @@
         
         .animation-delay-1000 { animation-delay: 1000ms; }
         .animation-delay-2000 { animation-delay: 2000ms; }
-        .animation-delay-4000 { animation-delay: 4000ms; }
         
         .pulse {
             animation: pulse 2s infinite;
@@ -68,49 +57,6 @@
         
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
-        }
-        
-        /* Modal Animations */
-        .modal-enter {
-            animation: modalEnter 0.3s ease-out forwards;
-        }
-        
-        @keyframes modalEnter {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        .modal-exit {
-            animation: modalExit 0.2s ease-in forwards;
-        }
-        
-        @keyframes modalExit {
-            from {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: scale(0.8) translateY(-20px);
-            }
-        }
-        
-        /* Special Effects */
-        .mouse-follower {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 70%, transparent 100%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            transition: transform 0.1s ease-out;
         }
         
         .glass {
@@ -152,213 +98,222 @@
             left: 100%;
         }
         
-        /* =============================================
-           UPDATED FEATURES SECTION STYLES
-           Enhanced 3D Carousel Styles
-        ============================================= */
-        .carousel-container {
+        .video-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 10px rgba(0, 247, 255, 0.7),
+                0 0 20px rgba(0, 247, 255, 0.5),
+                0 0 30px rgba(0, 247, 255, 0.3),
+                inset 0 0 10px rgba(0, 247, 255, 0.2);
+            border: 2px solid rgba(0, 247, 255, 0.5);
+        }
+
+        .video-container:hover {
+            box-shadow: 
+                0 0 15px rgba(0, 247, 255, 0.9),
+                0 0 30px rgba(0, 247, 255, 0.7),
+                0 0 45px rgba(0, 247, 255, 0.5),
+                inset 0 0 15px rgba(0, 247, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .video-wrapper {
             position: relative;
             width: 100%;
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding-bottom: 56.25%;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 18px;
             overflow: hidden;
         }
 
-        .carousel {
-            position: relative;
-            width: 800px;
-            height: 400px;
-            perspective: 1200px; /* Creates 3D perspective */
+        .video-element {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
         }
 
-        .feature-card {
+        .video-element.active {
+            display: block;
+        }
+
+        .play-button {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 180px;
-            height: 260px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            color: white;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 247, 255, 0.9);
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             align-items: center;
-            transform-style: preserve-3d; /* Enables 3D transformations */
-            transition: transform 0.8s ease, opacity 0.8s ease;
-            padding: 20px;
-            text-align: center;
+            justify-content: center;
             cursor: pointer;
-            backdrop-filter: blur(15px);
-            border: 2px solid #8B4513;
-            box-shadow: 0 0 20px rgba(255, 165, 0, 0.3), 0 0 40px rgba(255, 165, 0, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(0, 247, 255, 0.8),
+                0 0 40px rgba(0, 247, 255, 0.6);
+            z-index: 10;
         }
 
-        .feature-card-center {
-            transform: translate3d(0, -50%, 0) scale(1.1) !important;
-            z-index: 100;
-            border-color: #D2691E;
-            box-shadow: 0 0 30px rgba(255, 165, 0, 0.6), 0 0 60px rgba(255, 165, 0, 0.4);
+        .play-button:hover {
+            background: rgba(0, 247, 255, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 
+                0 0 30px rgba(0, 247, 255, 1),
+                0 0 60px rgba(0, 247, 255, 0.8);
         }
 
-        .feature-card-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #FFA500, #FF8C00, #FF6347);
+        .play-button i {
+            color: black;
+            font-size: 2rem;
+            margin-left: 5px;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .video-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: rgba(0, 247, 255, 0.7);
+            text-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
+        }
+
+        .video-placeholder h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00f7ff, #00b8ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .feature-card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: white;
-        }
-
-        .feature-card-description {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            line-height: 1.3;
-            margin-bottom: 15px;
+        .video-placeholder p {
             color: rgba(255, 255, 255, 0.8);
-        }
-
-        .feature-card-button {
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 165, 0, 0.5);
-            border-radius: 25px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            width: 100%;
-        }
-
-        .feature-card-button:hover {
-            background: rgba(255, 165, 0, 0.2);
-            border-color: rgba(255, 165, 0, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
-        }
-
-        /* Navigation Instructions */
-        .navigation-instructions {
-            text-align: center;
-            margin-top: 3rem;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .instructions-text {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 1rem;
             font-size: 1rem;
         }
 
-        .instructions-icons {
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .video-container:hover .video-controls {
+            opacity: 1;
+        }
+
+        .control-btn {
+            background: rgba(0, 247, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: black;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 247, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .progress-container {
+            flex: 1;
+            margin: 0 15px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar-video {
+            height: 100%;
+            background: linear-gradient(90deg, #00f7ff, #00b8ff);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .time-display {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-content {
+            flex: 1;
+            min-width: 300px;
+            text-align: left;
+        }
+
+        .hero-image {
+            flex: 1;
+            min-width: 300px;
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            align-items: center;
         }
 
-        .instructions-icons i {
-            font-size: 1.5rem;
-            color: #FFA500;
-            animation: bounce 2s infinite;
-        }
-
-        .instructions-icons i:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
-        /* UI Components */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 10px;
-        }
-        
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: white;
-            z-index: 1000;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateX(150%);
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
         }
-        
-        .toast.show {
-            transform: translateX(0);
-        }
-        
-        .toast.success {
-            background: #10b981;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        .toast.warning {
-            background: #f59e0b;
-        }
-        
-        .toast.info {
-            background: #3b82f6;
-        }
-        
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            transition: width 0.3s ease;
+
+        .hero-image img:hover {
+            transform: translateY(-10px);
         }
 
-        /* User Menu Styles */
         .user-menu-container {
             display: flex;
             align-items: center;
@@ -427,30 +382,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .pricing-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .pricing-card.popular {
-            border-color: #6366f1;
-            transform: scale(1.05);
-            position: relative;
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
         .password-strength {
             height: 4px;
             border-radius: 2px;
@@ -463,31 +394,41 @@
         .strength-good { background: #3b82f6; width: 75%; }
         .strength-strong { background: #10b981; width: 100%; }
 
-        /* Responsive Design for Features Section */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: #10b981;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        .toast.warning {
+            background: #f59e0b;
+        }
+        
+        .toast.info {
+            background: #3b82f6;
+        }
+
         @media (max-width: 768px) {
-            .carousel {
-                width: 600px;
-                height: 300px;
-            }
-            
-            .feature-card {
-                width: 150px;
-                height: 220px;
-                padding: 15px;
-            }
-            
-            .feature-card-icon {
-                font-size: 2.5rem;
-            }
-            
-            .feature-card-title {
-                font-size: 1rem;
-            }
-            
-            .feature-card-description {
-                font-size: 0.7rem;
-            }
-            
             .user-menu-container {
                 gap: 8px;
             }
@@ -518,35 +459,42 @@
                 font-size: 12px;
             }
 
-            .pricing-card.popular {
-                transform: scale(1);
+            .video-container {
+                max-width: 90%;
+            }
+
+            .play-button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .play-button i {
+                font-size: 1.5rem;
+            }
+
+            .video-placeholder i {
+                font-size: 3rem;
+            }
+
+            .video-placeholder h3 {
+                font-size: 1.2rem;
+            }
+
+            .video-placeholder p {
+                font-size: 0.9rem;
+            }
+
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-content {
+                text-align: center;
             }
         }
 
         @media (max-width: 480px) {
-            .carousel {
-                width: 100%;
-                height: 250px;
-            }
-            
-            .feature-card {
-                width: 130px;
-                height: 190px;
-                padding: 10px;
-            }
-            
-            .feature-card-icon {
-                font-size: 2rem;
-            }
-            
-            .feature-card-title {
-                font-size: 0.9rem;
-            }
-            
-            .feature-card-description {
-                font-size: 0.65rem;
-            }
-            
             .user-menu-container {
                 flex-direction: column;
                 gap: 6px;
@@ -560,18 +508,47 @@
             .logout-btn {
                 order: 1;
             }
+
+            .video-container {
+                max-width: 95%;
+            }
+
+            .play-button {
+                width: 50px;
+                height: 50px;
+            }
+
+            .play-button i {
+                font-size: 1.2rem;
+            }
+
+            .video-placeholder i {
+                font-size: 2.5rem;
+            }
+
+            .video-placeholder h3 {
+                font-size: 1rem;
+            }
+
+            .video-placeholder p {
+                font-size: 0.8rem;
+            }
+
+            .video-controls {
+                padding: 10px;
+            }
+
+            .control-btn {
+                width: 35px;
+                height: 35px;
+            }
+
+            .time-display {
+                font-size: 0.8rem;
+            }
         }
 
-        /* Accessibility and Performance */
         @media (prefers-reduced-motion: reduce) {
-            .feature-card {
-                transition: none;
-            }
-            
-            .instructions-icons i {
-                animation: none;
-            }
-            
             .float {
                 animation: none;
             }
@@ -579,29 +556,27 @@
             .pulse {
                 animation: none;
             }
+
+            .video-container {
+                transition: none;
+            }
+
+            .play-button {
+                transition: none;
+            }
+
+            .hero-image img {
+                transition: none;
+            }
         }
     </style>
 </head>
 <body class="min-h-screen text-white">
-    <!-- =============================================
-         TOAST CONTAINER
-    ============================================= -->
     <div id="toast-container"></div>
-    
-    <!-- =============================================
-         MOUSE FOLLOWERS
-    ============================================= -->
-    <div id="mouse-follower-1" class="mouse-follower"></div>
-    <div id="mouse-follower-2" class="mouse-follower"></div>
-    <div id="mouse-follower-3" class="mouse-follower"></div>
 
-    <!-- =============================================
-         NAVIGATION
-    ============================================= -->
     <nav class="relative z-50 glass border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
                         <i class="fas fa-file-pdf text-indigo-600 text-xl"></i>
@@ -609,14 +584,11 @@
                     <span class="text-xl font-bold gradient-text">PDF Summary Pro</span>
                 </div>
                 
-                <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="hover:text-indigo-200 transition-colors duration-300">Features</a>
                     <a href="#how-it-works" class="hover:text-indigo-200 transition-colors duration-300">How It Works</a>
                     <a href="#pricing" class="hover:text-indigo-200 transition-colors duration-300">Pricing</a>
                 </div>
                 
-                <!-- Auth Buttons - Show when user is NOT logged in -->
                 <div id="auth-buttons" class="flex items-center space-x-4">
                     <button onclick="showAuthModal('login')" 
                             class="px-6 py-2 rounded-full border border-white/20 hover:bg-white/10 transition-all duration-300 shine text-white">
@@ -628,9 +600,7 @@
                     </button>
                 </div>
                 
-                <!-- User Menu - Show when user IS logged in -->
                 <div id="user-menu" class="hidden user-menu-container">
-                    <!-- Credit Display -->
                     <div class="credit-display">
                         <i class="fas fa-coins"></i>
                         <span id="user-credits">0</span>
@@ -640,7 +610,6 @@
                         <div class="user-avatar" id="user-initials">U</div>
                         <span class="user-email" id="user-email-nav">user@example.com</span>
                     </div>
-                    <!-- Logout Button -->
                     <button onclick="logout()" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="logout-text">Logout</span>
@@ -650,186 +619,88 @@
         </div>
     </nav>
 
-    <!-- =============================================
-         HERO SECTION
-    ============================================= -->
     <section class="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-4xl mx-auto relative z-10">
-            <!-- Animated Badge -->
-            <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/20 mb-8 float">
-                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                <span class="text-sm">AI Powered Document Summarization</span>
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/20 mb-8 float">
+                        <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                        <span class="text-sm">AI Powered Document Summarization</span>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        Summarize PDFs with
+                        <span class="gradient-text">AI Magic</span>
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl leading-relaxed">
+                        Transform lengthy documents into concise summaries instantly. Powered by advanced AI algorithms for accurate and meaningful insights.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 mb-16">
+                        <button onclick="showAuthModal('signup')" 
+                                class="group px-8 py-4 bg-white text-indigo-600 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shine">
+                            <span class="flex items-center space-x-2">
+                                <span>Start Summarizing Free</span>
+                                <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                        </button>
+                        <button onclick="document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })" 
+                                class="group px-8 py-4 border border-white/30 rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300">
+                            <span class="flex items-center space-x-2">
+                                <span>See How It Works</span>
+                                <i class="fas fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-image">
+                    <img src="image/mn.jpg" alt="PDF Summary Pro AI Illustration">
+                </div>
             </div>
             
-            <!-- Main Heading -->
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Summarize PDFs with
-                <span class="gradient-text">AI Magic</span>
-            </h1>
-            
-            <!-- Subheading -->
-            <p class="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Transform lengthy documents into concise summaries instantly. Powered by advanced AI algorithms for accurate and meaningful insights.
-            </p>
-            
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-                <button onclick="showAuthModal('signup')" 
-                        class="group px-8 py-4 bg-white text-indigo-600 rounded-full font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shine">
-                    <span class="flex items-center space-x-2">
-                        <span>Start Summarizing Free</span>
-                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </span>
-                </button>
-                <button onclick="scrollToFeatures()" 
-                        class="group px-8 py-4 border border-white/30 rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300">
-                    <span class="flex items-center space-x-2">
-                        <span>See How It Works</span>
-                        <i class="fas fa-arrow-down group-hover:translate-y-1 transition-transform"></i>
-                    </span>
-                </button>
-            </div>
-            
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl font-bold text-indigo-300 mb-2">10K+</div>
-                    <div class="text-gray-300">Documents Summarized</div>
-                </div>
-                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl font-bold text-purple-300 mb-2">99.9%</div>
-                    <div class="text-gray-300">Accuracy Rate</div>
-                </div>
-                <div class="glass rounded-2xl p-6 transform hover:scale-105 transition-all duration-300">
-                    <div class="text-3xl font-bold text-pink-300 mb-2">5s</div>
-                    <div class="text-gray-300">Average Processing Time</div>
+            <div class="max-w-4xl mx-auto mt-16">
+                <div class="video-container" onclick="toggleVideoPlay()">
+                    <div class="video-wrapper">
+                        <video class="video-element" id="demo-video" preload="metadata">
+                            <source src="image/ad.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        
+                        <div class="video-placeholder" id="video-placeholder">
+                            <i class="fas fa-play-circle"></i>
+                            <h3>See PDF Summary Pro in Action</h3>
+                            <p>Click to watch how our AI transforms your documents</p>
+                        </div>
+                        
+                        <div class="play-button" id="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        
+                        <div class="video-controls">
+                            <button class="control-btn" onclick="event.stopPropagation(); togglePlayPause()">
+                                <i class="fas fa-pause" id="play-pause-icon"></i>
+                            </button>
+                            <div class="progress-container" onclick="event.stopPropagation(); seekVideo(event)">
+                                <div class="progress-bar-video" id="video-progress"></div>
+                            </div>
+                            <div class="time-display">
+                                <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+                            </div>
+                            <button class="control-btn" onclick="event.stopPropagation(); toggleMute()">
+                                <i class="fas fa-volume-up" id="volume-icon"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Floating Elements -->
         <div class="absolute top-20 left-10 w-20 h-20 bg-yellow-400/20 rounded-full blur-xl float animation-delay-1000"></div>
         <div class="absolute bottom-20 right-10 w-32 h-32 bg-cyan-400/20 rounded-full blur-xl float animation-delay-2000"></div>
     </section>
 
-    <!-- =============================================
-         UPDATED POWERFUL FEATURES SECTION
-         Enhanced with 3D Carousel
-    ============================================= -->
-    <section id="features" class="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6">Powerful Features</h2>
-                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Everything you need to transform your document workflow</p>
-            </div>
-            
-            <!-- Enhanced 3D Carousel Container -->
-            <div class="carousel-container">
-                <div class="carousel">
-                    <!-- DOC Summary Feature Card -->
-                    <div class="feature-card" data-tool="doc-summary">
-                        <div>
-                            <i class="feature-card-icon fas fa-file-alt"></i>
-                            <div class="feature-card-title">DOC Summary</div>
-                            <div class="feature-card-description">Extract key information from documents</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('doc-summary')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- PDF Summary Feature Card -->
-                    <div class="feature-card" data-tool="pdf-summary">
-                        <div>
-                            <i class="feature-card-icon fas fa-file-pdf"></i>
-                            <div class="feature-card-title">PDF Summary</div>
-                            <div class="feature-card-description">AI-powered PDF analysis</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('pdf-summary')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- PDF Converter Feature Card -->
-                    <div class="feature-card" data-tool="pdf-converter">
-                        <div>
-                            <i class="feature-card-icon fas fa-exchange-alt"></i>
-                            <div class="feature-card-title">PDF Converter</div>
-                            <div class="feature-card-description">Convert to multiple formats</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('pdf-converter')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- DOC Converter Feature Card -->
-                    <div class="feature-card" data-tool="doc-converter">
-                        <div>
-                            <i class="feature-card-icon fas fa-file-export"></i>
-                            <div class="feature-card-title">DOC Converter</div>
-                            <div class="feature-card-description">Transform Word documents</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('doc-converter')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- PDF to Image Feature Card -->
-                    <div class="feature-card" data-tool="pdf-to-image">
-                        <div>
-                            <i class="feature-card-icon fas fa-file-image"></i>
-                            <div class="feature-card-title">PDF to Image</div>
-                            <div class="feature-card-description">Convert pages to images</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('pdf-to-image')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- Text to Speech Feature Card -->
-                    <div class="feature-card" data-tool="text-to-speech">
-                        <div>
-                            <i class="feature-card-icon fas fa-volume-up"></i>
-                            <div class="feature-card-title">Text to Speech</div>
-                            <div class="feature-card-description">Transform text to audio</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('text-to-speech')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- Speech to Text Feature Card -->
-                    <div class="feature-card" data-tool="speech-to-text">
-                        <div>
-                            <i class="feature-card-icon fas fa-microphone"></i>
-                            <div class="feature-card-title">Speech to Text</div>
-                            <div class="feature-card-description">Convert audio to text</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('speech-to-text')">
-                            Use Tool
-                        </button>
-                    </div>
-                    
-                    <!-- OCR Tool Feature Card -->
-                    <div class="feature-card" data-tool="ocr-tool">
-                        <div>
-                            <i class="feature-card-icon fas fa-eye"></i>
-                            <div class="feature-card-title">OCR Tool</div>
-                            <div class="feature-card-description">Extract text from images</div>
-                        </div>
-                        <button class="feature-card-button" onclick="handleFeatureClick('ocr-tool')">
-                            Use Tool
-                        </button>
-                    </div>
-                </div>
-            </div>
-           
-        </div>
-    </section>
-
-    <!-- =============================================
-         HOW IT WORKS SECTION
-    ============================================= -->
     <section id="how-it-works" class="relative py-20 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
@@ -838,7 +709,6 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Step 1 -->
                 <div class="text-center">
                     <div class="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
                         1
@@ -847,7 +717,6 @@
                     <p class="text-gray-300">Drag & drop or select your PDF file</p>
                 </div>
                 
-                <!-- Step 2 -->
                 <div class="text-center">
                     <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
                         2
@@ -856,7 +725,6 @@
                     <p class="text-gray-300">Select from 6 different summary formats</p>
                 </div>
                 
-                <!-- Step 3 -->
                 <div class="text-center">
                     <div class="w-20 h-20 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold border-4 border-white/20">
                         3
@@ -868,145 +736,9 @@
         </div>
     </section>
 
-    <!-- =============================================
-         PRICING SECTION
-    ============================================= -->
     <section id="pricing" class="relative py-20 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6">Simple, Transparent Pricing</h2>
-                <p class="text-xl text-gray-300 max-w-2xl mx-auto">Choose the plan that works best for you. No hidden fees.</p>
-            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <!-- Free Plan -->
-                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold mb-2">Free</h3>
-                        <div class="text-4xl font-bold text-white mb-4">$0<span class="text-lg text-gray-300">/month</span></div>
-                        <p class="text-gray-300">Perfect for getting started</p>
-                    </div>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>5 credits per month</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Basic summary types</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Up to 10-page PDFs</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Text export only</span>
-                        </div>
-                        <div class="flex items-center space-x-3 text-gray-500">
-                            <i class="fas fa-times"></i>
-                            <span>Priority processing</span>
-                        </div>
-                        <div class="flex items-center space-x-3 text-gray-500">
-                            <i class="fas fa-times"></i>
-                            <span>Advanced AI models</span>
-                        </div>
-                    </div>
-                    
-                    <button onclick="showAuthModal('signup')" 
-                            class="w-full py-3 bg-white/10 border border-white/20 rounded-xl font-semibold text-white hover:bg-white/20 transition-all duration-300">
-                        Get Started Free
-                    </button>
-                </div>
-                
-                <!-- Pro Plan -->
-                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300 popular">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold mb-2">Pro</h3>
-                        <div class="text-4xl font-bold text-white mb-4">$29<span class="text-lg text-gray-300">/month</span></div>
-                        <p class="text-gray-300">For power users and professionals</p>
-                    </div>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>500 credits per month</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>All 6 summary types</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Up to 50-page PDFs</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>All export formats</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Priority processing</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Advanced AI models</span>
-                        </div>
-                    </div>
-                    
-                    <!-- UPDATED: Real subscription button -->
-                    <button onclick="subscriptionManager.subscribe('PRO')" 
-                            class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        Subscribe to Pro - $29/month
-                    </button>
-                </div>
-                
-                <!-- Enterprise Plan -->
-                <div class="pricing-card glass rounded-3xl p-8 transform hover:scale-105 transition-all duration-300">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
-                        <div class="text-4xl font-bold text-white mb-4">$99<span class="text-lg text-gray-300">/month</span></div>
-                        <p class="text-gray-300">For teams and businesses</p>
-                    </div>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>2000 credits per month</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>All summary types</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Unlimited PDF size</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>All export formats</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Priority processing</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-check text-green-400"></i>
-                            <span>Advanced AI models</span>
-                        </div>
-                    </div>
-                    
-                    <!-- UPDATED: Real subscription button -->
-                    <button onclick="subscriptionManager.subscribe('ENTERPRISE')" 
-                            class="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        Subscribe to Enterprise - $99/month
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Credit Information -->
             <div class="text-center mt-16 glass rounded-3xl p-8 max-w-4xl mx-auto">
                 <h3 class="text-2xl font-bold mb-4">How Credits Work</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
@@ -1027,37 +759,16 @@
                             </li>
                         </ul>
                     </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3 text-indigo-300">Additional Credits</h4>
-                        <ul class="space-y-2 text-gray-300">
-                            <li class="flex items-center space-x-2">
-                                <i class="fas fa-shopping-cart text-indigo-400"></i>
-                                <span>Buy extra credits anytime</span>
-                            </li>
-                            <li class="flex items-center space-x-2">
-                                <i class="fas fa-tags text-indigo-400"></i>
-                                <span>10 credits for $2</span>
-                            </li>
-                            <li class="flex items-center space-x-2">
-                                <i class="fas fa-percentage text-indigo-400"></i>
-                                <span>Bulk discounts available</span>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =============================================
-         INTERACTIVE AUTH MODAL
-    ============================================= -->
     <div id="auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideAuthModal()"></div>
         
         <div class="relative w-full max-w-md">
             <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl" id="auth-modal-content">
-                <!-- Login Form -->
                 <div id="login-form">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold mb-2 text-white">Welcome Back</h2>
@@ -1099,7 +810,6 @@
                     </div>
                 </div>
                 
-                <!-- Signup Form -->
                 <div id="signup-form" class="hidden">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold mb-2 text-white">Create Account</h2>
@@ -1162,7 +872,6 @@
                 </div>
             </div>
             
-            <!-- Close Button -->
             <button onclick="hideAuthModal()" 
                     class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
                 <i class="fas fa-times"></i>
@@ -1170,67 +879,13 @@
         </div>
     </div>
 
-    <!-- =============================================
-         PAYMENT MODAL
-    ============================================= -->
-    <div id="payment-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hidePaymentModal()"></div>
-        
-        <div class="relative w-full max-w-md">
-            <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold mb-2 text-white">Complete Payment</h2>
-                    <p class="text-gray-300">Purchase <span id="payment-credits">10</span> credits</p>
-                </div>
-                
-                <div class="space-y-6">
-                    <div class="bg-white/10 rounded-xl p-4 border border-white/20">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-300">Credits:</span>
-                            <span class="font-semibold text-white" id="payment-credits-display">10</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-300">Total:</span>
-                            <span class="text-xl font-bold text-white">$<span id="payment-total">2.00</span></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Stripe Payment Element -->
-                    <div id="payment-element" class="bg-white/5 rounded-xl p-4 border border-white/20">
-                        <!-- Stripe will inject the payment form here -->
-                        <div class="text-center text-gray-400 py-8">
-                            <i class="fas fa-credit-card text-2xl mb-2"></i>
-                            <p>Payment form loading...</p>
-                        </div>
-                    </div>
-                    
-                    <button onclick="processPayment()" 
-                            class="w-full py-3 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        Pay $<span id="payment-button-total">2.00</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Close Button -->
-            <button onclick="hidePaymentModal()" 
-                    class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- =============================================
-         MAIN APP SECTION (Hidden until login)
-    ============================================= -->
     <div id="main-app" class="hidden min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-6xl mx-auto">
-            <!-- App Header -->
             <div class="text-center mb-12">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">PDF Summary Pro</h1>
                 <p class="text-xl text-gray-300">Upload your PDF and get AI-powered summaries in multiple formats</p>
             </div>
             
-            <!-- Credit Info Banner -->
             <div class="glass rounded-2xl p-6 mb-8 border border-indigo-500/30">
                 <div class="flex flex-col md:flex-row items-center justify-between">
                     <div class="flex items-center space-x-4 mb-4 md:mb-0">
@@ -1246,14 +901,9 @@
                         <div class="text-3xl font-bold text-indigo-300" id="current-credits">5</div>
                         <p class="text-gray-300">credits remaining</p>
                     </div>
-                    <button onclick="showCreditModal()" 
-                            class="mt-4 md:mt-0 px-6 py-2 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transition-all duration-300">
-                        Buy More Credits
-                    </button>
                 </div>
             </div>
             
-            <!-- Upload Section -->
             <div class="glass rounded-3xl p-8 mb-8">
                 <div id="upload-area" 
                      class="border-2 border-dashed border-white/30 rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 hover:border-indigo-400 hover:bg-white/5 group">
@@ -1268,16 +918,11 @@
                     </div>
                 </div>
                 
-                <div id="file-info" class="hidden mt-6 p-4 bg-white/10 rounded-xl border border-white/20">
-                    <!-- File info will be displayed here by JavaScript -->
-                </div>
+                <div id="file-info" class="hidden mt-6 p-4 bg-white/10 rounded-xl border border-white/20"></div>
                 
-                <!-- Summary Options -->
                 <div id="summary-options" class="hidden mt-8">
                     <h3 class="text-xl font-bold text-white mb-4">Choose Summary Type</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="summary-types-container">
-                        <!-- Summary types will be rendered here by JavaScript -->
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="summary-types-container"></div>
                     
                     <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-4 mb-6">
                         <div class="flex items-center space-x-3">
@@ -1297,7 +942,6 @@
                 </div>
             </div>
             
-            <!-- Results Section -->
             <div id="results-section" class="hidden glass rounded-3xl p-8">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-white">Summary</h2>
@@ -1320,112 +964,214 @@
                     <span id="summary-stats">0 words</span>
                 </div>
                 
-                <div id="summary-content" class="bg-white/5 rounded-xl p-6 border border-white/10 text-gray-200 leading-relaxed whitespace-pre-wrap min-h-[200px] max-h-[600px] overflow-y-auto">
-                    <!-- Summary content will appear here -->
-                </div>
+                <div id="summary-content" class="bg-white/5 rounded-xl p-6 border border-white/10 text-gray-200 leading-relaxed whitespace-pre-wrap min-h-[200px] max-h-[600px] overflow-y-auto"></div>
             </div>
         </div>
     </div>
 
-    <!-- =============================================
-         CREDIT PURCHASE MODAL
-    ============================================= -->
-    <div id="credit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideCreditModal()"></div>
-        
-        <div class="relative w-full max-w-md">
-            <div class="glass rounded-3xl p-8 transform transition-all duration-500 shadow-2xl">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold mb-2 text-white">Buy More Credits</h2>
-                    <p class="text-gray-300">Get additional credits for your PDF summaries</p>
-                </div>
-                
-                <div class="space-y-4 mb-6">
-                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(10)">
-                        <div>
-                            <h4 class="font-semibold text-white">10 Credits</h4>
-                            <p class="text-gray-300 text-sm">Perfect for occasional use</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-white">$2.00</div>
-                            <div class="text-gray-400 text-sm">$0.20 per credit</div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-indigo-500/50 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(50)">
-                        <div>
-                            <h4 class="font-semibold text-white">50 Credits</h4>
-                            <p class="text-gray-300 text-sm">Most popular choice</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-white">$8.00</div>
-                            <div class="text-gray-400 text-sm">$0.16 per credit</div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300" onclick="selectCreditPackage(100)">
-                        <div>
-                            <h4 class="font-semibold text-white">100 Credits</h4>
-                            <p class="text-gray-300 text-sm">Best value for heavy users</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-lg font-bold text-white">$14.00</div>
-                            <div class="text-gray-400 text-sm">$0.14 per credit</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center text-gray-400 text-sm mb-6">
-                    <p>Credits never expire and can be used anytime</p>
-                </div>
-                
-                <button onclick="showPaymentModal()" 
-                        class="w-full py-3 bg-gradient-to-r from-green-500 to-cyan-500 rounded-xl font-semibold text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                    Purchase <span id="selected-credits">10</span> Credits - $<span id="selected-price">2.00</span>
-                </button>
-                
-                <div class="text-center mt-4">
-                    <button onclick="hideCreditModal()" class="text-gray-400 hover:text-gray-300 transition-colors">
-                        Maybe later
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Close Button -->
-            <button onclick="hideCreditModal()" 
-                    class="absolute -top-4 -right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg z-10">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- =============================================
-         EMBEDDED JAVASCRIPT
-    ============================================= -->
     <script>
-        // =============================================
-        // PDF.js SETUP
-        // =============================================
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // =============================================
-        // GLOBAL VARIABLES
-        // =============================================
         let currentUser = null;
         let selectedFile = null;
         let selectedSummaryType = 'brief';
         let extractedText = '';
         let userCredits = 5;
-        let selectedCreditPackage = {
-            credits: 10,
-            price: 2.00
-        };
-        let stripe = null;
-        let elements = null;
 
-        // =============================================
-        // ENHANCED UX UTILITIES
-        // =============================================
+        const videoManager = {
+            video: null,
+            isPlaying: false,
+            isVideoLoaded: false,
+
+            initializeVideo: function() {
+                this.video = document.getElementById('demo-video');
+                if (!this.video) return;
+
+                this.video.addEventListener('loadedmetadata', () => {
+                    this.isVideoLoaded = true;
+                    this.updateDurationDisplay();
+                });
+
+                this.video.addEventListener('timeupdate', () => {
+                    this.updateProgressBar();
+                    this.updateTimeDisplay();
+                });
+
+                this.video.addEventListener('ended', () => {
+                    this.handleVideoEnd();
+                });
+
+                this.video.addEventListener('play', () => {
+                    this.isPlaying = true;
+                    this.updatePlayPauseIcon();
+                });
+
+                this.video.addEventListener('pause', () => {
+                    this.isPlaying = false;
+                    this.updatePlayPauseIcon();
+                });
+            },
+
+            toggleVideoPlay: function() {
+                if (!this.video) return;
+
+                if (!this.isVideoLoaded) {
+                    this.loadAndPlayVideo();
+                    return;
+                }
+
+                if (this.isPlaying) {
+                    this.video.pause();
+                } else {
+                    this.video.play();
+                }
+                this.isPlaying = !this.isPlaying;
+                this.updateVideoUI();
+            },
+
+            loadAndPlayVideo: function() {
+                if (!this.video) return;
+
+                const playButton = document.getElementById('play-button');
+                if (playButton) {
+                    playButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+
+                this.video.load();
+                this.video.play().then(() => {
+                    this.isVideoLoaded = true;
+                    this.isPlaying = true;
+                    this.updateVideoUI();
+                }).catch(error => {
+                    console.error('Error playing video:', error);
+                    enhancedUX.showToast('Error loading video. Please try again.', 'error');
+                    this.resetVideoUI();
+                });
+            },
+
+            togglePlayPause: function() {
+                if (!this.video || !this.isVideoLoaded) return;
+
+                if (this.isPlaying) {
+                    this.video.pause();
+                } else {
+                    this.video.play();
+                }
+            },
+
+            toggleMute: function() {
+                if (!this.video) return;
+
+                this.video.muted = !this.video.muted;
+                this.updateVolumeIcon();
+            },
+
+            seekVideo: function(event) {
+                if (!this.video || !this.isVideoLoaded) return;
+
+                const progressContainer = event.currentTarget;
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = (event.clientX - rect.left) / rect.width;
+                this.video.currentTime = percent * this.video.duration;
+            },
+
+            updateProgressBar: function() {
+                if (!this.video || !this.isVideoLoaded) return;
+
+                const progressBar = document.getElementById('video-progress');
+                if (progressBar) {
+                    const percent = (this.video.currentTime / this.video.duration) * 100;
+                    progressBar.style.width = percent + '%';
+                }
+            },
+
+            updateTimeDisplay: function() {
+                if (!this.video || !this.isVideoLoaded) return;
+
+                const currentTimeEl = document.getElementById('current-time');
+                const durationEl = document.getElementById('duration');
+
+                if (currentTimeEl) {
+                    currentTimeEl.textContent = this.formatTime(this.video.currentTime);
+                }
+                if (durationEl) {
+                    durationEl.textContent = this.formatTime(this.video.duration);
+                }
+            },
+
+            updateDurationDisplay: function() {
+                if (!this.video || !this.isVideoLoaded) return;
+
+                const durationEl = document.getElementById('duration');
+                if (durationEl) {
+                    durationEl.textContent = this.formatTime(this.video.duration);
+                }
+            },
+
+            updatePlayPauseIcon: function() {
+                const icon = document.getElementById('play-pause-icon');
+                if (icon) {
+                    icon.className = this.isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                }
+            },
+
+            updateVolumeIcon: function() {
+                if (!this.video) return;
+
+                const icon = document.getElementById('volume-icon');
+                if (icon) {
+                    icon.className = this.video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+                }
+            },
+
+            updateVideoUI: function() {
+                const videoElement = document.getElementById('demo-video');
+                const placeholder = document.getElementById('video-placeholder');
+                const playButton = document.getElementById('play-button');
+
+                if (this.isPlaying) {
+                    if (videoElement) videoElement.classList.add('active');
+                    if (placeholder) placeholder.style.display = 'none';
+                    if (playButton) playButton.style.display = 'none';
+                } else {
+                    if (videoElement) videoElement.classList.remove('active');
+                    if (placeholder) placeholder.style.display = 'flex';
+                    if (playButton) {
+                        playButton.style.display = 'flex';
+                        playButton.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                }
+
+                this.updatePlayPauseIcon();
+                this.updateVolumeIcon();
+            },
+
+            resetVideoUI: function() {
+                const playButton = document.getElementById('play-button');
+                if (playButton) {
+                    playButton.innerHTML = '<i class="fas fa-play"></i>';
+                    playButton.style.display = 'flex';
+                }
+            },
+
+            handleVideoEnd: function() {
+                this.isPlaying = false;
+                this.updateVideoUI();
+                
+                if (this.video) {
+                    this.video.currentTime = 0;
+                }
+            },
+
+            formatTime: function(seconds) {
+                if (isNaN(seconds)) return '0:00';
+                
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+        };
+
         const enhancedUX = {
             showToast: function(message, type = 'info') {
                 const container = document.getElementById('toast-container');
@@ -1481,245 +1227,6 @@
             }
         };
 
-        // =============================================
-        // UPDATED FEATURES SECTION CAROUSEL FUNCTIONALITY
-        // Enhanced 3D Carousel with Auto-Rotation
-        // =============================================
-        function initializeFeaturesCarousel() {
-            const carousel = document.querySelector('.carousel');
-            if (!carousel) {
-                console.error('Carousel element not found');
-                return;
-            }
-            
-            const cards = document.querySelectorAll('.feature-card');
-            const totalCards = cards.length;
-            const angleStep = 360 / totalCards; // Calculate angle between each card
-            const radius = 500; // Radius of the circular carousel
-            let carouselAngle = 0;
-            let isCarouselAnimating = false;
-            let autoRotateInterval;
-
-            console.log(`Initializing features carousel with ${totalCards} cards`);
-
-            // =============================================
-            // UPDATE CARDS POSITION FUNCTION
-            // Calculates and applies 3D positions for all cards
-            // =============================================
-            function updateCardsPosition() {
-                cards.forEach((card, index) => {
-                    // Calculate angle for this card (in radians)
-                    const theta = (index * angleStep + carouselAngle) * (Math.PI / 180);
-                    
-                    // Calculate 3D position using trigonometric functions
-                    const x = Math.sin(theta) * radius; // Horizontal position
-                    const z = Math.cos(theta) * radius; // Depth position
-                    
-                    // Remove center class from all cards first
-                    card.classList.remove('feature-card-center');
-                    
-                    // Apply 3D transformation with rotation and position
-                    card.style.transform = `translate3d(${x}px, -50%, ${z}px) rotateY(${theta}rad)`;
-                    
-                    // Calculate opacity based on depth (cards further away are more transparent)
-                    const opacity = Math.max(0.3, 1 - Math.abs(z) / (radius * 1.5));
-                    card.style.opacity = opacity.toString();
-                    
-                    // Calculate scale based on depth (cards in front are larger)
-                    const scale = 0.8 + (1 - Math.abs(z) / (radius * 2)) * 0.4;
-                    card.style.transform += ` scale(${scale})`;
-                    
-                    // Add center class to the front-facing card
-                    const currentAngle = (index * angleStep + carouselAngle) % 360;
-                    const normalizedAngle = currentAngle < 0 ? currentAngle + 360 : currentAngle;
-                    
-                    // Check if this card is in the front (within ±angleStep/2 degrees)
-                    if (Math.abs(normalizedAngle) < angleStep / 2 || 
-                        Math.abs(normalizedAngle - 360) < angleStep / 2) {
-                        card.classList.add('feature-card-center');
-                    }
-                });
-            }
-
-            // =============================================
-            // AUTO-ROTATION FUNCTIONALITY
-            // Automatically rotates the carousel when not interacting
-            // =============================================
-            function startAutoRotation() {
-                autoRotateInterval = setInterval(() => {
-                    if (!isCarouselAnimating) {
-                        carouselAngle -= 0.3; // Slow continuous rotation
-                        updateCardsPosition();
-                    }
-                }, 50); // Update every 50ms for smooth animation
-            }
-
-            // =============================================
-            // CLICK TO CENTER FUNCTIONALITY
-            // Animates clicked card to the center position
-            // =============================================
-            function setupCardClickHandlers() {
-                cards.forEach((card, index) => {
-                    card.addEventListener('click', function() {
-                        if (isCarouselAnimating) return; // Prevent multiple clicks during animation
-                        
-                        isCarouselAnimating = true;
-                        const targetAngle = -index * angleStep; // Calculate target angle for this card
-                        
-                        console.log(`Animating card ${index} to center, target angle: ${targetAngle}`);
-                        
-                        // =============================================
-                        // ANIMATION FUNCTION
-                        // Smoothly animates the carousel to center the clicked card
-                        // =============================================
-                        function animateToCenter() {
-                            const angleDifference = targetAngle - carouselAngle;
-                            const absoluteDifference = Math.abs(angleDifference);
-                            
-                            // Continue animation until we're close to target
-                            if (absoluteDifference > 1) {
-                                // Smooth interpolation using easing
-                                carouselAngle += angleDifference * 0.1;
-                                updateCardsPosition();
-                                requestAnimationFrame(animateToCenter);
-                            } else {
-                                // Final position
-                                carouselAngle = targetAngle;
-                                updateCardsPosition();
-                                isCarouselAnimating = false;
-                                console.log(`Animation completed for card ${index}`);
-                            }
-                        }
-                        
-                        // Start the animation
-                        animateToCenter();
-                    });
-                });
-            }
-
-            // =============================================
-            // HOVER EFFECTS
-            // Adds interactive hover effects to cards
-            // =============================================
-            function setupCardHoverEffects() {
-                cards.forEach(card => {
-                    card.addEventListener('mouseenter', function() {
-                        if (!this.classList.contains('feature-card-center')) {
-                            this.style.transform += ' scale(1.05)';
-                            this.style.zIndex = '50';
-                        }
-                    });
-                    
-                    card.addEventListener('mouseleave', function() {
-                        if (!this.classList.contains('feature-card-center')) {
-                            // Reset transform will be handled by updateCardsPosition
-                            this.style.zIndex = '';
-                            updateCardsPosition(); // Re-apply positions to fix scaling
-                        }
-                    });
-                });
-            }
-
-            // =============================================
-            // TOUCH SUPPORT FOR MOBILE DEVICES
-            // Adds swipe functionality for touch devices
-            // =============================================
-            function setupTouchSupport() {
-                let touchStartX = 0;
-                let touchStartY = 0;
-                
-                carousel.addEventListener('touchstart', (e) => {
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                });
-                
-                carousel.addEventListener('touchmove', (e) => {
-                    if (!isCarouselAnimating) {
-                        const touchX = e.touches[0].clientX;
-                        const deltaX = touchX - touchStartX;
-                        
-                        // Rotate carousel based on horizontal swipe
-                        carouselAngle -= deltaX * 0.5;
-                        updateCardsPosition();
-                        
-                        touchStartX = touchX;
-                    }
-                });
-            }
-
-            // =============================================
-            // INITIALIZATION
-            // Start all carousel functionalities
-            // =============================================
-            updateCardsPosition();      // Set initial positions
-            startAutoRotation();        // Start auto-rotation
-            setupCardClickHandlers();   // Setup click interactions
-            setupCardHoverEffects();    // Setup hover effects
-            setupTouchSupport();        // Setup touch support
-            
-            console.log('Features carousel initialization completed successfully');
-
-            // =============================================
-            // CLEANUP FUNCTION
-            // Stops auto-rotation when needed
-            // =============================================
-            return function cleanup() {
-                if (autoRotateInterval) {
-                    clearInterval(autoRotateInterval);
-                }
-            };
-        }
-
-        // =============================================
-        // FEATURE CLICK HANDLER
-        // Handles clicks on feature cards in the carousel
-        // =============================================
-        function handleFeatureClick(toolName) {
-            console.log(`Feature clicked: ${toolName}`);
-            
-            // Array of available tools with their display names
-            const toolNames = {
-                'doc-summary': 'DOC Summary',
-                'pdf-summary': 'PDF Summary',
-                'pdf-converter': 'PDF Converter',
-                'doc-converter': 'DOC Converter',
-                'pdf-to-image': 'PDF to Image',
-                'text-to-speech': 'Text to Speech',
-                'speech-to-text': 'Speech to Text',
-                'ocr-tool': 'OCR Tool'
-            };
-            
-            const displayName = toolNames[toolName] || toolName;
-            
-            // Show feedback to user
-            enhancedUX.showToast(`Opening ${displayName} tool...`, 'info');
-            
-            // In a real application, this would:
-            // 1. Check user authentication
-            // 2. Redirect to the specific tool page
-            // 3. Or load the tool interface dynamically
-            
-            // Simulate tool loading (replace with actual functionality)
-            setTimeout(() => {
-                enhancedUX.showToast(`${displayName} tool is ready!`, 'success');
-                
-                // Additional actions based on the tool
-                if (toolName === 'pdf-summary') {
-                    // For PDF Summary, show the main app if user is logged in
-                    if (authManager.checkAuthStatus()) {
-                        document.getElementById('main-app').classList.remove('hidden');
-                        document.querySelector('section.relative.min-h-screen').style.display = 'none';
-                        document.getElementById('pricing').style.display = 'none';
-                    } else {
-                        showAuthModal('signup');
-                    }
-                }
-            }, 1500);
-        }
-
-        // =============================================
-        // PASSWORD STRENGTH CHECKER
-        // =============================================
         function checkPasswordStrength(password) {
             const strengthBar = document.getElementById('password-strength');
             const feedback = document.getElementById('password-feedback');
@@ -1733,22 +1240,12 @@
             let strength = 0;
             let feedbackText = '';
             
-            // Length check
             if (password.length >= 8) strength += 1;
-            
-            // Contains lowercase
             if (/[a-z]/.test(password)) strength += 1;
-            
-            // Contains uppercase
             if (/[A-Z]/.test(password)) strength += 1;
-            
-            // Contains numbers
             if (/[0-9]/.test(password)) strength += 1;
-            
-            // Contains special characters
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
             
-            // Update UI
             switch(strength) {
                 case 0:
                 case 1:
@@ -1774,9 +1271,6 @@
             return strength;
         }
 
-        // =============================================
-        // CREDIT MANAGEMENT
-        // =============================================
         const creditManager = {
             initializeCredits: function() {
                 const savedCredits = localStorage.getItem('userCredits');
@@ -1787,13 +1281,11 @@
             },
             
             updateCreditDisplay: function() {
-                // Update navigation
                 const navCredits = document.getElementById('user-credits');
                 if (navCredits) {
                     navCredits.textContent = userCredits;
                 }
                 
-                // Update main app
                 const currentCredits = document.getElementById('current-credits');
                 const creditsBeforeProcessing = document.getElementById('credits-before-processing');
                 
@@ -1829,13 +1321,9 @@
             }
         };
 
-        // =============================================
-        // FILE VALIDATION UTILITIES
-        // =============================================
         const fileValidator = {
             validatePDF: function(file) {
                 return new Promise((resolve) => {
-                    // Check file type
                     if (file.type !== 'application/pdf') {
                         resolve({
                             isValid: false,
@@ -1844,8 +1332,7 @@
                         return;
                     }
                     
-                    // Check file size (10MB max)
-                    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                    const maxSize = 10 * 1024 * 1024;
                     if (file.size > maxSize) {
                         resolve({
                             isValid: false,
@@ -1854,7 +1341,6 @@
                         return;
                     }
                     
-                    // Mock validation
                     setTimeout(() => {
                         resolve({
                             isValid: true,
@@ -1883,9 +1369,6 @@
             }
         };
 
-        // =============================================
-        // PDF TEXT EXTRACTION
-        // =============================================
         const pdfExtractor = {
             extractTextFromPDF: async function(file) {
                 try {
@@ -1908,7 +1391,6 @@
             },
             
             cleanText: function(text) {
-                // Remove excessive whitespace and clean up text
                 return text
                     .replace(/\s+/g, ' ')
                     .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n\n')
@@ -1916,7 +1398,6 @@
             },
             
             identifySections: function(text) {
-                // Simple section identification based on common patterns
                 const sections = {
                     introduction: '',
                     methodology: '',
@@ -1948,9 +1429,6 @@
             }
         };
 
-        // =============================================
-        // SUMMARY TYPES MANAGEMENT
-        // =============================================
         const summaryTypes = {
             types: [
                 {
@@ -2017,7 +1495,6 @@
                     </div>
                 `).join('');
                 
-                // Add click event listeners
                 document.querySelectorAll('.summary-type-card').forEach(card => {
                     card.addEventListener('click', () => {
                         this.selectType(card.dataset.type);
@@ -2028,7 +1505,6 @@
             selectType: function(typeId) {
                 selectedSummaryType = typeId;
                 
-                // Update UI
                 document.querySelectorAll('.summary-type-card').forEach(card => {
                     const cardElement = card.querySelector('.glass');
                     if (card.dataset.type === typeId) {
@@ -2046,17 +1522,12 @@
             }
         };
 
-        // =============================================
-        // PDF PROCESSING - REAL CONTENT BASED
-        // =============================================
         const pdfProcessor = {
             processPDF: async function(file, summaryType) {
                 try {
-                    // Extract text from PDF
                     extractedText = await pdfExtractor.extractTextFromPDF(file);
                     extractedText = pdfExtractor.cleanText(extractedText);
                     
-                    // Generate summary based on actual content
                     const summary = this.generateSummaryFromContent(extractedText, summaryType, file.name);
                     return summary;
                 } catch (error) {
@@ -2077,7 +1548,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
 
 `;
                 
-                // Generate different summary types based on actual content
                 switch(summaryType) {
                     case 'brief':
                         return this.generateBriefSummary(baseContent, sentences, sections);
@@ -2097,7 +1567,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             },
             
             generateBriefSummary: function(baseContent, sentences, sections) {
-                // Take first few meaningful sentences
                 const keySentences = sentences
                     .filter(s => s.length > 20)
                     .slice(0, 3)
@@ -2138,7 +1607,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             generateBulletSummary: function(baseContent, sentences, sections) {
                 let summary = baseContent + "KEY POINTS:\n\n";
                 
-                // Extract key points from each section
                 Object.entries(sections).forEach(([sectionName, content]) => {
                     if (content.trim().length > 0) {
                         const points = this.extractBulletPoints(content, 3);
@@ -2233,13 +1701,9 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             }
         };
 
-        // =============================================
-        // AUTHENTICATION MANAGEMENT
-        // =============================================
         const authManager = {
             login: function(email, password) {
                 return new Promise((resolve) => {
-                    // Simulate API call with real validation
                     setTimeout(() => {
                         const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
                         
@@ -2263,7 +1727,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             
             signup: function(name, email, password) {
                 return new Promise((resolve) => {
-                    // Simulate API call with real validation
                     setTimeout(() => {
                         const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
                         
@@ -2277,7 +1740,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                             return;
                         }
                         
-                        // Create new user
                         users[email] = {
                             name: name,
                             password: this.hashPassword(password),
@@ -2304,8 +1766,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             },
             
             hashPassword: function(password) {
-                // Simple hash function for demo purposes
-                // In a real app, use proper hashing like bcrypt
                 let hash = 0;
                 for (let i = 0; i < password.length; i++) {
                     const char = password.charCodeAt(i);
@@ -2343,7 +1803,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 const pricingSection = document.getElementById('pricing');
                 
                 if (currentUser) {
-                    // User is logged in
                     if (authButtons) authButtons.classList.add('hidden');
                     if (userMenu) {
                         userMenu.classList.remove('hidden');
@@ -2355,13 +1814,11 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                     if (landingPage) landingPage.style.display = 'none';
                     if (pricingSection) pricingSection.style.display = 'none';
                     
-                    // Update reset date
                     const resetDate = document.getElementById('reset-date');
                     if (resetDate) {
                         resetDate.textContent = creditManager.getResetDate();
                     }
                 } else {
-                    // User is not logged in
                     if (authButtons) authButtons.classList.remove('hidden');
                     if (userMenu) userMenu.classList.add('hidden');
                     if (mainApp) mainApp.classList.add('hidden');
@@ -2371,198 +1828,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             }
         };
 
-        // =============================================
-        // PAYMENT INTEGRATION
-        // =============================================
-        const paymentManager = {
-            initializeStripe: function() {
-                // Initialize Stripe with test key
-                stripe = Stripe('pk_test_51ExampleTestKey1234567890');
-                elements = stripe.elements({
-                    appearance: {
-                        theme: 'night',
-                        variables: {
-                            colorPrimary: '#6366f1',
-                            colorBackground: 'rgba(255, 255, 255, 0.1)',
-                            colorText: 'white',
-                            colorDanger: '#ef4444',
-                            fontFamily: 'Inter, system-ui, sans-serif',
-                            spacingUnit: '4px',
-                            borderRadius: '8px'
-                        }
-                    }
-                });
-            },
-            
-            createPaymentIntent: function(amount, credits) {
-                return new Promise((resolve) => {
-                    // Simulate API call to create payment intent
-                    setTimeout(() => {
-                        resolve({
-                            clientSecret: 'pi_test_example_client_secret_123456',
-                            amount: amount,
-                            credits: credits
-                        });
-                    }, 1000);
-                });
-            },
-            
-            setupPaymentForm: async function(amount, credits) {
-                try {
-                    const { clientSecret } = await this.createPaymentIntent(amount, credits);
-                    
-                    const paymentElement = elements.create('payment', {
-                        clientSecret: clientSecret,
-                    });
-                    
-                    await paymentElement.mount('#payment-element');
-                    
-                    return paymentElement;
-                } catch (error) {
-                    console.error('Error setting up payment:', error);
-                    enhancedUX.showToast('Error setting up payment form', 'error');
-                    throw error;
-                }
-            },
-            
-            processPayment: async function(paymentElement) {
-                const button = document.querySelector('#payment-modal button');
-                enhancedUX.showLoading(button, 'Processing payment...');
-                
-                try {
-                    const { error } = await stripe.confirmPayment({
-                        elements,
-                        confirmParams: {
-                            return_url: window.location.href,
-                        },
-                        redirect: 'if_required'
-                    });
-                    
-                    if (error) {
-                        enhancedUX.showToast(error.message, 'error');
-                        enhancedUX.hideLoading(button);
-                        return false;
-                    }
-                    
-                    // Simulate successful payment
-                    setTimeout(() => {
-                        enhancedUX.hideLoading(button);
-                        this.handleSuccessfulPayment();
-                    }, 2000);
-                    
-                    return true;
-                } catch (error) {
-                    enhancedUX.hideLoading(button);
-                    enhancedUX.showToast('Payment processing failed', 'error');
-                    return false;
-                }
-            },
-            
-            handleSuccessfulPayment: function() {
-                creditManager.addCredits(selectedCreditPackage.credits);
-                hidePaymentModal();
-                hideCreditModal();
-                enhancedUX.showToast(`Payment successful! ${selectedCreditPackage.credits} credits added to your account.`, 'success');
-                
-                // Update user data
-                if (currentUser) {
-                    currentUser.credits = userCredits;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-            }
-        };
-
-        // =============================================
-        // SUBSCRIPTION MANAGER
-        // =============================================
-        const subscriptionManager = {
-            subscribe: function(plan) {
-                if (!authManager.checkAuthStatus()) {
-                    enhancedUX.showToast('Please log in to subscribe', 'warning');
-                    showAuthModal('login');
-                    return;
-                }
-
-                let price, credits, planName;
-                
-                switch(plan) {
-                    case 'PRO':
-                        price = 29;
-                        credits = 500;
-                        planName = 'Pro';
-                        break;
-                    case 'ENTERPRISE':
-                        price = 99;
-                        credits = 2000;
-                        planName = 'Enterprise';
-                        break;
-                    default:
-                        enhancedUX.showToast('Invalid plan selected', 'error');
-                        return;
-                }
-
-                enhancedUX.showToast(`Processing ${planName} subscription...`, 'info');
-                
-                // Simulate subscription processing
-                setTimeout(() => {
-                    // Update user plan and credits
-                    currentUser.plan = plan.toLowerCase();
-                    userCredits = credits;
-                    
-                    // Update localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Update users database
-                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
-                    if (users[currentUser.email]) {
-                        users[currentUser.email].plan = plan.toLowerCase();
-                        users[currentUser.email].credits = credits;
-                        localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
-                    }
-                    
-                    // Update UI
-                    creditManager.updateCreditDisplay();
-                    enhancedUX.showToast(`Successfully subscribed to ${planName} plan! ${credits} credits added.`, 'success');
-                    
-                    // Show main app if not already visible
-                    authManager.updateUI();
-                }, 2000);
-            },
-            
-            cancelSubscription: function() {
-                if (!currentUser || currentUser.plan === 'free') {
-                    enhancedUX.showToast('No active subscription found', 'warning');
-                    return;
-                }
-                
-                enhancedUX.showToast('Cancelling subscription...', 'info');
-                
-                // Simulate subscription cancellation
-                setTimeout(() => {
-                    currentUser.plan = 'free';
-                    userCredits = 5; // Reset to free tier credits
-                    
-                    // Update localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Update users database
-                    const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
-                    if (users[currentUser.email]) {
-                        users[currentUser.email].plan = 'free';
-                        users[currentUser.email].credits = 5;
-                        localStorage.setItem('pdfSummaryUsers', JSON.stringify(users));
-                    }
-                    
-                    // Update UI
-                    creditManager.updateCreditDisplay();
-                    enhancedUX.showToast('Subscription cancelled successfully. Reverted to Free plan.', 'success');
-                }, 1500);
-            }
-        };
-
-        // =============================================
-        // MODAL FUNCTIONS
-        // =============================================
         function showAuthModal(type) {
             const modal = document.getElementById('auth-modal');
             if (modal) {
@@ -2574,47 +1839,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
 
         function hideAuthModal() {
             const modal = document.getElementById('auth-modal');
-            if (modal) {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }
-        }
-
-        function showCreditModal() {
-            const modal = document.getElementById('credit-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
-
-        function hideCreditModal() {
-            const modal = document.getElementById('credit-modal');
-            if (modal) {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }
-        }
-
-        function showPaymentModal() {
-            const modal = document.getElementById('payment-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                
-                // Update payment modal with selected package
-                document.getElementById('payment-credits').textContent = selectedCreditPackage.credits;
-                document.getElementById('payment-credits-display').textContent = selectedCreditPackage.credits;
-                document.getElementById('payment-total').textContent = selectedCreditPackage.price.toFixed(2);
-                document.getElementById('payment-button-total').textContent = selectedCreditPackage.price.toFixed(2);
-                
-                // Setup payment form
-                paymentManager.setupPaymentForm(selectedCreditPackage.price * 100, selectedCreditPackage.credits);
-            }
-        }
-
-        function hidePaymentModal() {
-            const modal = document.getElementById('payment-modal');
             if (modal) {
                 modal.classList.remove('flex');
                 modal.classList.add('hidden');
@@ -2634,39 +1858,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             }
         }
 
-        function selectCreditPackage(credits) {
-            let price = 0;
-            switch(credits) {
-                case 10:
-                    price = 2.00;
-                    break;
-                case 50:
-                    price = 8.00;
-                    break;
-                case 100:
-                    price = 14.00;
-                    break;
-            }
-            
-            selectedCreditPackage = { credits, price };
-            
-            // Update UI
-            document.getElementById('selected-credits').textContent = credits;
-            document.getElementById('selected-price').textContent = price.toFixed(2);
-            
-            // Update selection visual
-            document.querySelectorAll('#credit-modal [onclick^="selectCreditPackage"]').forEach(el => {
-                el.classList.remove('border-indigo-500/50');
-                el.classList.add('border-white/20');
-            });
-            
-            event.currentTarget.classList.remove('border-white/20');
-            event.currentTarget.classList.add('border-indigo-500/50');
-        }
-
-        // =============================================
-        // AUTHENTICATION FUNCTIONS
-        // =============================================
         async function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -2751,40 +1942,16 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             authManager.logout();
         }
 
-        function scrollToFeatures() {
-            document.getElementById('features').scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-        }
-
-        // =============================================
-        // PAYMENT FUNCTIONS
-        // =============================================
-        async function processPayment() {
-            const paymentElement = elements.getElement('payment');
-            await paymentManager.processPayment(paymentElement);
-        }
-
-        // UPDATED: Remove old upgradeToPro function since we're using real subscriptions now
-        function contactSales() {
-            enhancedUX.showToast('Please contact sales@pdfsummarypro.com for enterprise plans', 'info');
-        }
-
-        // =============================================
-        // PDF UPLOAD AND PROCESSING
-        // =============================================
         function initializeFileUpload() {
             const uploadArea = document.getElementById('upload-area');
             const fileInput = document.getElementById('pdf-file');
             
             if (!uploadArea || !fileInput) return;
             
-            // Click to upload
             uploadArea.addEventListener('click', () => {
                 fileInput.click();
             });
             
-            // Drag and drop
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('border-indigo-400', 'bg-white/10');
@@ -2804,7 +1971,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 }
             });
             
-            // File input change
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
                     handleFileSelection(e.target.files[0]);
@@ -2819,10 +1985,8 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             
             if (!file) return;
             
-            // Show loading state
             enhancedUX.showToast('Validating PDF file...', 'info');
             
-            // Validate file
             const validation = await fileValidator.validatePDF(file);
             
             if (!validation.isValid) {
@@ -2830,11 +1994,9 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 return;
             }
             
-            // File is valid
             selectedFile = file;
             const fileData = fileValidator.getFileInfo(file);
             
-            // Update UI
             fileInfo.innerHTML = `
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -2856,7 +2018,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             summaryOptions.classList.remove('hidden');
             uploadArea.classList.add('hidden');
             
-            // Render summary types
             summaryTypes.renderTypes();
             summaryTypes.selectType('brief');
             
@@ -2884,10 +2045,8 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 return;
             }
             
-            // Check if user has enough credits
             if (userCredits < 1) {
                 enhancedUX.showToast('Not enough credits. Please purchase more credits to continue.', 'error');
-                showCreditModal();
                 return;
             }
             
@@ -2902,33 +2061,25 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             enhancedUX.showLoading(button, 'Processing PDF...');
             
             try {
-                // Use one credit
                 if (!creditManager.useCredit()) {
                     enhancedUX.showToast('Not enough credits. Please purchase more credits.', 'error');
                     enhancedUX.hideLoading(button);
-                    showCreditModal();
                     return;
                 }
                 
-                // Show results section
                 resultsSection.classList.remove('hidden');
                 
-                // Update summary type display
                 const selectedType = summaryTypes.getSelectedType();
                 if (summaryTypeDisplay && selectedType) {
                     summaryTypeDisplay.textContent = selectedType.name;
                 }
                 
-                // Show processing message
                 summaryContent.textContent = 'Processing PDF... Please wait while we extract text and generate your summary. This may take a few moments.';
                 
-                // Process PDF
                 const summary = await pdfProcessor.processPDF(selectedFile, selectedSummaryType);
                 
-                // Display summary
                 summaryContent.textContent = summary;
                 
-                // Update stats
                 if (summaryStats) {
                     const wordCount = summary.split(/\s+/).length;
                     const charCount = summary.length;
@@ -2938,12 +2089,10 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 
                 enhancedUX.showToast('Summary generated successfully!', 'success');
                 
-                // Update user data
                 if (currentUser) {
                     currentUser.credits = userCredits;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
-                    // Update user in users database
                     const users = JSON.parse(localStorage.getItem('pdfSummaryUsers') || '{}');
                     if (users[currentUser.email]) {
                         users[currentUser.email].credits = userCredits;
@@ -2954,7 +2103,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
                 enhancedUX.showToast('Failed to process PDF: ' + error.message, 'error');
                 summaryContent.textContent = 'Error: Unable to generate summary. Please try again with a different PDF file.\n\nError details: ' + error.message;
                 
-                // Refund credit if processing failed
                 creditManager.addCredits(1);
             } finally {
                 enhancedUX.hideLoading(button);
@@ -2974,7 +2122,6 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             const selectedType = summaryTypes.getSelectedType();
             const fileName = `summary_${selectedType ? selectedType.name.toLowerCase().replace(/ /g, '_') : 'brief'}_${new Date().getTime()}.txt`;
             
-            // Create and download file
             const blob = new Blob([summary], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2999,63 +2146,27 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             enhancedUX.showToast('App reset successfully', 'info');
         }
 
-        // =============================================
-        // MOUSE FOLLOWER EFFECT
-        // =============================================
-        function initializeMouseFollowers() {
-            const followers = [
-                document.getElementById('mouse-follower-1'),
-                document.getElementById('mouse-follower-2'),
-                document.getElementById('mouse-follower-3')
-            ].filter(f => f !== null);
-            
-            if (followers.length === 0) return;
-            
-            let mouseX = 0;
-            let mouseY = 0;
-            
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-            
-            function animateFollowers() {
-                followers.forEach((follower, index) => {
-                    const delay = index * 100;
-                    const x = mouseX - follower.offsetWidth / 2;
-                    const y = mouseY - follower.offsetHeight / 2;
-                    
-                    setTimeout(() => {
-                        follower.style.transform = `translate(${x}px, ${y}px)`;
-                    }, delay);
-                });
-                
-                requestAnimationFrame(animateFollowers);
-            }
-            
-            animateFollowers();
+        function toggleVideoPlay() {
+            videoManager.toggleVideoPlay();
         }
 
-        // =============================================
-        // INITIALIZE APPLICATION
-        // =============================================
+        function togglePlayPause() {
+            videoManager.togglePlayPause();
+        }
+
+        function toggleMute() {
+            videoManager.toggleMute();
+        }
+
+        function seekVideo(event) {
+            videoManager.seekVideo(event);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Stripe
-            paymentManager.initializeStripe();
-            
-            // Check authentication status
             authManager.checkAuthStatus();
-            
-            // Initialize features carousel
-            initializeFeaturesCarousel();
-            
-            // Initialize file upload
             initializeFileUpload();
+            videoManager.initializeVideo();
             
-            // Initialize mouse followers
-            initializeMouseFollowers();
-            
-            // Add smooth scrolling for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -3071,30 +2182,21 @@ Summary Type: ${summaryTypes.getSelectedType().name}
             enhancedUX.showToast('Welcome to PDF Summary Pro!', 'info');
         });
 
-        // =============================================
-        // GLOBAL FUNCTIONS FOR HTML ONCLICK HANDLERS
-        // =============================================
         window.showAuthModal = showAuthModal;
         window.hideAuthModal = hideAuthModal;
         window.switchAuthForm = switchAuthForm;
         window.login = login;
         window.signup = signup;
         window.logout = logout;
-        window.scrollToFeatures = scrollToFeatures;
         window.uploadPDF = uploadPDF;
         window.exportSummary = exportSummary;
         window.resetApp = resetApp;
         window.clearSelectedFile = clearSelectedFile;
-        window.showCreditModal = showCreditModal;
-        window.hideCreditModal = hideCreditModal;
-        window.selectCreditPackage = selectCreditPackage;
-        window.showPaymentModal = showPaymentModal;
-        window.hidePaymentModal = hidePaymentModal;
-        window.processPayment = processPayment;
-        window.contactSales = contactSales;
         window.checkPasswordStrength = checkPasswordStrength;
-        window.handleFeatureClick = handleFeatureClick;
-        window.subscriptionManager = subscriptionManager;
+        window.toggleVideoPlay = toggleVideoPlay;
+        window.togglePlayPause = togglePlayPause;
+        window.toggleMute = toggleMute;
+        window.seekVideo = seekVideo;
     </script>
 </body>
 </html>
